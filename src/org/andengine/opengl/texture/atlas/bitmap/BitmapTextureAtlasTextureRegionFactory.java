@@ -8,6 +8,8 @@ import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSourc
 import org.andengine.opengl.texture.atlas.bitmap.source.ResourceBitmapTextureAtlasSource;
 import org.andengine.opengl.texture.atlas.buildable.BuildableTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.TextureRegion;
+import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.util.exception.AndEngineRuntimeException;
@@ -154,7 +156,36 @@ public final class BitmapTextureAtlasTextureRegionFactory {
 		return BitmapTextureAtlasTextureRegionFactory.createTiledFromSource(pBuildableBitmapTextureAtlas, bitmapTextureAtlasSource, pTileColumns, pTileRows);
 	}
 
-	public static TextureRegion createFromResource(final BuildableBitmapTextureAtlas pBuildableBitmapTextureAtlas, final Context pContext, final int pDrawableResourceID) {
+	/**
+	 * Loads all files from a given assets directory (in alphabetical order) as
+	 * consecutive tiles of ITiledTextureRegion which it returns
+	 *
+	 * @param pBuildableBitmapTextureAtlas
+	 * @param pAssetManager
+	 * @param pAssetsSubdirectory to load all files from "gfx/flowers" put "flowers" here (assuming, that you've used setAssetBasePath("gfx/") on this factory)
+	 * @return
+	 */
+	public static ITiledTextureRegion createTiledFromAssetDirectory(final BuildableBitmapTextureAtlas pBuildableBitmapTextureAtlas, final AssetManager pAssetManager, final String pAssetsSubdirectory) {
+		ITextureRegion textures[];
+		String[] files;
+
+		try {
+			files = pAssetManager.list(getAssetBasePath() + pAssetsSubdirectory);
+		} catch (IOException ioex) {
+			throw new AndEngineRuntimeException("Listing assets directory failed! " + getAssetBasePath() + pAssetsSubdirectory + " does not exist?", ioex);
+		}
+		textures = new ITextureRegion[files.length];
+
+		for (int i = 0; i < files.length; i++) {
+			String file = pAssetsSubdirectory + "/" + files[i];
+			textures[i] = BitmapTextureAtlasTextureRegionFactory.createFromAsset(pBuildableBitmapTextureAtlas, pAssetManager, file);
+		}
+
+		return new TiledTextureRegion(pBuildableBitmapTextureAtlas, textures);
+	}
+
+
+	public static ITextureRegion createFromResource(final BuildableBitmapTextureAtlas pBuildableBitmapTextureAtlas, final Context pContext, final int pDrawableResourceID) {
 		return BitmapTextureAtlasTextureRegionFactory.createFromResource(pBuildableBitmapTextureAtlas, pContext.getResources(), pDrawableResourceID);
 	}
 
@@ -193,31 +224,7 @@ public final class BitmapTextureAtlasTextureRegionFactory {
 		return BuildableTextureAtlasTextureRegionFactory.createTiledFromSource(pBuildableBitmapTextureAtlas, pBitmapTextureAtlasSource, pTileColumns, pTileRows);
 	}
 
-	/**
-	 * Loads all files from a given assets directory (in alphabetical order) as consecutive tiles of an {@link TiledTextureRegion}.
-	 *
-	 * @param pBuildableBitmapTextureAtlas
-	 * @param pAssetManager
-	 * @param pAssetSubdirectory to load all files from "gfx/flowers" put "flowers" here (assuming, that you've used {@link BitmapTextureAtlasTextureRegionFactory#setAssetBasePath(String)} with "gfx/" before.)
-	 * @return
-	 */
-	public static TiledTextureRegion createTiledFromAssetDirectory(final BuildableBitmapTextureAtlas pBuildableBitmapTextureAtlas, final AssetManager pAssetManager, final String pAssetSubdirectory) {
-		final String[] files;
-		try {
-			files = pAssetManager.list(BitmapTextureAtlasTextureRegionFactory.sAssetBasePath + pAssetSubdirectory);
-		} catch (final IOException e) {
-			throw new AndEngineRuntimeException("Listing assets subdirectory: '" + BitmapTextureAtlasTextureRegionFactory.sAssetBasePath + pAssetSubdirectory + "' failed. Does it exist?", e);
-		}
-		final int fileCount = files.length;
-		final TextureRegion[] textures = new TextureRegion[fileCount];
 
-		for (int i = 0; i < fileCount; i++) {
-			final String assetPath = pAssetSubdirectory + "/" + files[i];
-			textures[i] = BitmapTextureAtlasTextureRegionFactory.createFromAsset(pBuildableBitmapTextureAtlas, pAssetManager, assetPath);
-		}
-
-		return new TiledTextureRegion(pBuildableBitmapTextureAtlas, textures);
-	}
 
 	// ===========================================================
 	// Inner and Anonymous Classes
