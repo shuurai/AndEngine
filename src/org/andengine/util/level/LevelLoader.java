@@ -31,7 +31,7 @@ public abstract class LevelLoader<T extends IEntityLoaderData, L extends IEntity
 	// ===========================================================
 	// Fields
 	// ===========================================================
-
+	private String mAssetBasePath;
 	private final HashMap<String, IEntityLoader<T>> mEntityLoaders = new HashMap<String, IEntityLoader<T>>();
 	private IEntityLoader<T> mDefaultEntityLoader;
 
@@ -53,6 +53,21 @@ public abstract class LevelLoader<T extends IEntityLoaderData, L extends IEntity
 
 	public void setDefaultEntityLoader(final IEntityLoader<T> pDefaultEntityLoader) {
 		this.mDefaultEntityLoader = pDefaultEntityLoader;
+	}
+
+	/**
+	 * @param pAssetBasePath must end with '<code>/</code>' or have <code>.length() == 0</code>.
+	 */
+	public void setAssetBasePath(final String pAssetBasePath) {
+		if(pAssetBasePath.endsWith("/") || (pAssetBasePath.length() == 0)) {
+			this.mAssetBasePath = pAssetBasePath;
+		} else {
+			throw new IllegalStateException("pAssetBasePath must end with '/' or be lenght zero.");
+		}
+	}
+
+	public String getAssetBasePath() {
+		return mAssetBasePath;
 	}
 
 	// ===========================================================
