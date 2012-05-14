@@ -1260,8 +1260,13 @@ public class Entity implements IEntity {
 	}
 
 	@Override
+<<<<<<< HEAD
 	public float[] convertLocalCoordinatesToSceneCoordinates(final float[] pCoordinates) {
 		return this.convertLocalCoordinatesToSceneCoordinates(pCoordinates, Entity.VERTICES_LOCAL_TO_SCENE_TMP);
+=======
+	public float[] convertLocalToSceneCoordinates(final float[] pCoordinates) {
+		return this.convertLocalToSceneCoordinates(pCoordinates, Entity.VERTICES_LOCAL_TO_SCENE_TMP);
+>>>>>>> Epic bug was fixed
 	}
 
 	@Override
