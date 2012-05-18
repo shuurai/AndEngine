@@ -73,7 +73,7 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 	// ===========================================================
 
 	private static final SensorDelay SENSORDELAY_DEFAULT = SensorDelay.GAME;
-	private static final int UPDATEHANDLERS_CAPACITY_DEFAULT = 8;
+	protected static final int UPDATEHANDLERS_CAPACITY_DEFAULT = 8;
 	private static final int DRAWHANDLERS_CAPACITY_DEFAULT = 4;
 
 	// ===========================================================
