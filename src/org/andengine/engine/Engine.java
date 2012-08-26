@@ -608,8 +608,31 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 	}
 
 	protected void onUpdateUpdateHandlers(final float pSecondsElapsed) {
+		/*
 		this.mUpdateThreadRunnableHandler.onUpdate(pSecondsElapsed);
 		this.mUpdateHandlers.onUpdate(pSecondsElapsed);
+		this.getCamera().onUpdate(pSecondsElapsed);
+		*/
+		/*
+		 * If we separate each task into they're own method, it makes overriding this method
+		 * easier, as we then can keep the private status of variables and in other engines
+		 * stop updates from happening. Also means no bug chasing!
+		 */
+		this.onUpdateUpdateThreadRunnableHandler(pSecondsElapsed);
+		this.onUpdateUpdateHandlersList(pSecondsElapsed);
+		this.onUpdateUpdateCamera(pSecondsElapsed);
+	}
+	
+	protected void onUpdateUpdateHandlersList(final float pSecondsElapsed){
+		this.mUpdateHandlers.onUpdate(pSecondsElapsed);
+	}
+	
+	protected void onUpdateUpdateCamera(final float pSecondsElapsed){
+		this.getCamera().onUpdate(pSecondsElapsed);
+	}
+	
+	protected void onUpdateUpdateThreadRunnableHandler(final float pSecondsElapsed){
+		this.mUpdateThreadRunnableHandler.onUpdate(pSecondsElapsed);
 	}
 
 	protected void onUpdateDrawHandlers(final GLState pGLState, final Camera pCamera) {
