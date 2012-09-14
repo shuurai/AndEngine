@@ -5,8 +5,9 @@ import org.andengine.util.adt.map.LongSparseArray;
 import org.andengine.util.adt.queue.IQueue;
 import org.andengine.util.adt.queue.SortedQueue;
 import org.andengine.util.algorithm.path.Path;
+import org.andengine.util.algorithm.path.astar.AStarPathFinder;
 /**
- * 
+ * Derived from {@link AStarPathFinder}
  * @author Paul Robinson
  * @since 6 Sep 2012 15:20:19
  * @param <T>
@@ -78,9 +79,9 @@ public class AStarPathFinderTileBased<T> implements ITilePathFinder<T> {
 
 			/* Loop over all neighbors of this position. */
 			for(int dX = -1; dX <= 1; dX++) {
-				//New it, new Row
+				//New it, new Col
 				for(int dY = -1; dY <= 1; dY++) {
-					//new col
+					//new row
 					if((dX == 0) && (dY == 0)) {
 						//We're at a stand still
 						continue;
@@ -90,12 +91,12 @@ public class AStarPathFinderTileBased<T> implements ITilePathFinder<T> {
 						//Log.i("ASTAR", "no dialg DX != 0 && DY != 0: ");
 						continue;
 					}
-					final int neighborNodeX = dX + currentNode.mX; //Row
-					final int neighborNodeY = dY + currentNode.mY; //Col
+					final int neighborNodeX = dX + currentNode.mX; //Col
+					final int neighborNodeY = dY + currentNode.mY; //Row
 					final long neighborNodeID = Node.calculateID(neighborNodeX, neighborNodeY);
 
 					//Check if tile is within our bounds
-					if(neighborNodeX < 0 || neighborNodeX > pMaxRows || neighborNodeY < 0 || neighborNodeY > pMaxCols){
+					if(neighborNodeX < 0 || neighborNodeX > pMaxCols || neighborNodeY < 0 || neighborNodeY > pMaxRows){
 						//Less than zero and more than rows/cols we've got!
 						continue;
 					}

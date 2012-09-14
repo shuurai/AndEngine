@@ -1,8 +1,10 @@
 package org.andengine.util.algorithm.path.astar.tile;
 
+import org.andengine.util.algorithm.path.ICostFunction;
+
 
 /**
- * 
+ * Derived from {@link ICostFunction}
  * @author Paul Robinson
  * @since 6 Sep 2012 15:41:57
  * @param <T>

@@ -1,8 +1,10 @@
 package org.andengine.util.algorithm.path.astar.tile;
 
+import org.andengine.util.algorithm.path.astar.IAStarHeuristic;
+
 
 /**
- * 
+ * Derived from {@link IAStarHeuristic}
  * @author Paul Robinson
  * @since 6 Sep 2012 15:45:30
  * @param <T>

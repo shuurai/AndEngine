@@ -1,9 +1,10 @@
 package org.andengine.util.algorithm.path.astar.tile;
 
+import org.andengine.util.algorithm.path.IPathFinder;
 import org.andengine.util.algorithm.path.Path;
 
 /**
- * 
+ * Derived from {@link IPathFinder}
  * @author Paul Robinson
  * @since 6 Sep 2012 15:25:44
  * @param <T>
