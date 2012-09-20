@@ -2,7 +2,8 @@ package org.andengine.util.algorithm.path.astar.tile;
 
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.EntityModifier;
-import org.andengine.entity.modifier.MoveModifier;
+import org.andengine.entity.modifier.MoveSetZModifier;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.util.algorithm.path.Path;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.SequenceModifier;
@@ -12,7 +13,10 @@ import org.andengine.util.modifier.ease.IEaseFunction;
 
 import android.util.FloatMath;
 /**
- * 
+ * A Star path Modifier for predominantly isometric TMX Map. <br>
+ * <br><b>Not tested with an orthographic map</b>
+ * <b>Only support isometric in 4 directions (NE, NW, SE, SW)</b>
+ *  
  * @author korkd
  * @see <a href="http://code.google.com/p/korkd/">korkd google code</a>
  * @author Paul Robinson
@@ -28,9 +32,7 @@ public class AStarPathTileModifier extends EntityModifier {
 	// ===========================================================
 
 	private final SequenceModifier<IEntity> mSequenceModifier;
-
 	private IAStarPathTileModifierListener mPathModifierListener;
-
 	private final Path mPath;
 	/**
 	 * Tile dimensions.
@@ -59,42 +61,61 @@ public class AStarPathTileModifier extends EntityModifier {
 	 */
 	private float mSegmentLength = 0;
 	private float modifierCount = 0;
-	private MoveModifier[] moveModifiers;
+	private MoveSetZModifier[] moveModifiers;
+	/**
+	 * When animating, help keep track of what modifier is currently executing. 
+	 * Helps with speeding up entity (Start from current modifier till finish)
+	 */
 	private int mCurrentIndex = 0;
+	private IZOrderMethod mGetZOrder;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset) {
-		this(pDuration, pPath, pTileDimensions, pMapDrawOriginX, pMapDrawOriginY, pIsometric, pSpriteOffset, null, null, EaseLinear.getInstance());
-		
+	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset, final IZOrderMethod pZOrderMethod) {
+		this(pDuration, pPath, pTileDimensions, pMapDrawOriginX, pMapDrawOriginY, pIsometric, pSpriteOffset, pZOrderMethod, null, null, EaseLinear.getInstance());
+
 	}
-	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset, final IEaseFunction pEaseFunction) {
-		this(pDuration, pPath, pTileDimensions,pMapDrawOriginX, pMapDrawOriginY,pIsometric, pSpriteOffset, null, null, pEaseFunction);
+	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset, final IZOrderMethod pZOrderMethod, final IEaseFunction pEaseFunction) {
+		this(pDuration, pPath, pTileDimensions,pMapDrawOriginX, pMapDrawOriginY,pIsometric, pSpriteOffset, pZOrderMethod, null, null, pEaseFunction);
 	}
 
-	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset, final IEntityModifierListener pEntityModiferListener) {
-		this(pDuration, pPath, pTileDimensions,pMapDrawOriginX, pMapDrawOriginY,pIsometric,  pSpriteOffset,  pEntityModiferListener, null, EaseLinear.getInstance());
+	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset, final IZOrderMethod pZOrderMethod, final IEntityModifierListener pEntityModiferListener) {
+		this(pDuration, pPath, pTileDimensions,pMapDrawOriginX, pMapDrawOriginY,pIsometric,  pSpriteOffset, pZOrderMethod, pEntityModiferListener, null, EaseLinear.getInstance());
 	}
 
-	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset, final IAStarPathTileModifierListener pPathModifierListener) {
-		this(pDuration, pPath, pTileDimensions,pMapDrawOriginX, pMapDrawOriginY, pIsometric, pSpriteOffset,  null, pPathModifierListener, EaseLinear.getInstance());
+	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset, final IZOrderMethod pZOrderMethod, final IAStarPathTileModifierListener pPathModifierListener) {
+		this(pDuration, pPath, pTileDimensions,pMapDrawOriginX, pMapDrawOriginY, pIsometric, pSpriteOffset, pZOrderMethod, null, pPathModifierListener, EaseLinear.getInstance());
 	}
 
-	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset, final IAStarPathTileModifierListener pPathModifierListener, final IEaseFunction pEaseFunction) {
-		this(pDuration, pPath, pTileDimensions, pMapDrawOriginX, pMapDrawOriginY,pIsometric, pSpriteOffset,  null, pPathModifierListener, pEaseFunction);
+	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset, final IZOrderMethod pZOrderMethod, final IAStarPathTileModifierListener pPathModifierListener, final IEaseFunction pEaseFunction) {
+		this(pDuration, pPath, pTileDimensions, pMapDrawOriginX, pMapDrawOriginY,pIsometric, pSpriteOffset, pZOrderMethod, null, pPathModifierListener, pEaseFunction);
 	}
 
-	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset, final IEntityModifierListener pEntityModiferListener, final IEaseFunction pEaseFunction) {
-		this(pDuration, pPath, pTileDimensions, pMapDrawOriginX, pMapDrawOriginY, pIsometric,pSpriteOffset,  pEntityModiferListener, null, pEaseFunction);
+	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY, final boolean pIsometric, final float[] pSpriteOffset, final IZOrderMethod pZOrderMethod, final IEntityModifierListener pEntityModiferListener, final IEaseFunction pEaseFunction) {
+		this(pDuration, pPath, pTileDimensions, pMapDrawOriginX, pMapDrawOriginY, pIsometric,pSpriteOffset, pZOrderMethod, pEntityModiferListener, null, pEaseFunction);
 	}
-	
-	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY,final boolean pIsometric,  final float[] pSpriteOffset, final IEntityModifierListener pEntityModiferListener, final IAStarPathTileModifierListener pPathModifierListener) throws IllegalArgumentException {
-		this(pDuration, pPath, pTileDimensions,pMapDrawOriginX, pMapDrawOriginY, pIsometric,pSpriteOffset,  pEntityModiferListener, pPathModifierListener, EaseLinear.getInstance());
+
+	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY,final boolean pIsometric,  final float[] pSpriteOffset, final IZOrderMethod pZOrderMethod, final IEntityModifierListener pEntityModiferListener, final IAStarPathTileModifierListener pPathModifierListener) throws IllegalArgumentException {
+		this(pDuration, pPath, pTileDimensions,pMapDrawOriginX, pMapDrawOriginY, pIsometric,pSpriteOffset, pZOrderMethod, pEntityModiferListener, pPathModifierListener, EaseLinear.getInstance());
 	}
-	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY,final boolean pIsometric, final float[] pSpriteOffset, final IEntityModifierListener pEntityModiferListener, final IAStarPathTileModifierListener pPathModifierListener, final IEaseFunction pEaseFunction) throws IllegalArgumentException {
+	/**
+	 * 
+	 * @param pDuration {@link Float} Duration of each modifier.
+	 * @param pPath {@link Path} produced by {@link AStarPathFinderTileBased} to translate and execute.
+	 * @param pTileDimensions {@link Integer} array of tile size. <b>Element[0]</b> Height <b>Element[1]</b> Width
+	 * @param pMapDrawOriginX {@link Float} of map draw X draw origin.
+	 * @param pMapDrawOriginY {@link Float} of map draw Y draw origin.
+	 * @param pIsometric {@link Boolean} Pass <code>true</code> if an isometric map.
+	 * @param pSpriteOffset {@link Float} array of sprite offset (or pass {0,0} if not using) helps placing the sprite later on.
+	 * @param pZOrderMethod {@link IZOrderMethod} to call when creating the modifier to set the {@link Sprite#setZIndex(int)}
+	 * @param pEntityModiferListener 
+	 * @param pPathModifierListener {@link IAStarPathTileModifierListener} to help animate the sprite.
+	 * @param pEaseFunction
+	 * @throws IllegalArgumentException
+	 */
+	public AStarPathTileModifier(final float pDuration, final Path pPath, final int[] pTileDimensions, final float pMapDrawOriginX, final float pMapDrawOriginY,final boolean pIsometric, final float[] pSpriteOffset, final IZOrderMethod pZOrderMethod, final IEntityModifierListener pEntityModiferListener, final IAStarPathTileModifierListener pPathModifierListener, final IEaseFunction pEaseFunction) throws IllegalArgumentException {
 		super(pEntityModiferListener);
 		final int pathSize = pPath.getLength();
-
 		if (pathSize < 2) {
 			throw new IllegalArgumentException("Path needs at least 2 waypoints!");
 		}
@@ -105,28 +126,64 @@ public class AStarPathTileModifier extends EntityModifier {
 		this.mDrawOriginY = pMapDrawOriginY;
 		this.mIsometric = pIsometric;
 		this.mOffset = pSpriteOffset;
-		this.moveModifiers = new MoveModifier[pathSize - 1];
-		
+		this.moveModifiers = new MoveSetZModifier[pathSize - 1];
+		this.mGetZOrder = pZOrderMethod;
+
 		float velocity = 0;
 		float duration = 0;
-		this.modifierCount = moveModifiers.length;
+		this.modifierCount = this.moveModifiers.length;
 		this.mSegmentLength = this.getSegmentLength(0);
 		for(int i = 0; i < this.modifierCount; i++) {
 			if(this.mIsometric){
 				velocity = (pPath.getLength() * this.mTileDimensions[0]) / pDuration;
 				duration = this.mSegmentLength  / velocity;
 				duration = pDuration;
+				/*
+				 * Get the centre of the tiles.
+				 */
 				float[] tileCen = this.getTileCentre(i);
 				float[] tileCenNeigbour = this.getTileCentre(i +1);
-				moveModifiers[i] = new MoveModifier(duration, tileCen[0], tileCenNeigbour[0], tileCen[1], tileCenNeigbour[1], null, pEaseFunction);
+				
+				/*
+				 * Now calculate the Z swap point between the tiles. 
+				 */
+				/**
+				 * <b>[0] = X</b> <b>[1] = Y</b>
+				 */
+				float[] ZSwapLoc = {0,0};
+				float xQuarter = this.mTileDimensions[1] /4;
+				float yQuarter = this.mTileDimensions[0] /4;
+				if(tileCenNeigbour[0] > tileCen[0] && tileCenNeigbour[1] > tileCen[1]){
+					//Inc X + Inc Y = Right
+					ZSwapLoc[0] = tileCen[0] + xQuarter;
+					ZSwapLoc[1] = tileCen[1] + yQuarter;
+				}else if(tileCenNeigbour[0] > tileCen[0] && tileCenNeigbour[1] < tileCen[1]){
+					//Inc X + Dec Y = Up
+					ZSwapLoc[0] = tileCen[0] + xQuarter;
+					ZSwapLoc[1] = tileCen[1] - yQuarter;
+				}else if(tileCenNeigbour[0] < tileCen[0] && tileCenNeigbour[1] > tileCen[1]){
+					//Dec X + Inc Y = Down
+					ZSwapLoc[0] = tileCen[0] - xQuarter;
+					ZSwapLoc[1] = tileCen[1] + yQuarter;
+				}else if(tileCenNeigbour[0] < tileCen[0] && tileCenNeigbour[1] < tileCen[1]){
+					//Dec X + Dec Y = Left
+					ZSwapLoc[0] = tileCen[0] - xQuarter;
+					ZSwapLoc[1] = tileCen[1] - yQuarter;
+				}
+				int zFrom = this.mGetZOrder.getZOrder(this.mPath.getY(i), this.mPath.getX(i));
+				int zTo = this.mGetZOrder.getZOrder(this.mPath.getY(i+1), this.mPath.getX(i+1));
+				this.moveModifiers[i] = new MoveSetZModifier(duration, tileCen[0], tileCenNeigbour[0], tileCen[1], tileCenNeigbour[1], zFrom, zTo, ZSwapLoc, null, pEaseFunction);
 			}else{
 				velocity = (pPath.getLength() * pTileDimensions[0]) / pDuration;
 				duration = getSegmentLength(i) / velocity;
-				moveModifiers[i] = new MoveModifier(duration, getXCoordinates(i), getXCoordinates(i + 1), getYCoordinates(i), getYCoordinates(i + 1), null, pEaseFunction);
+				//TODO implement for orthographic. Perhaps just ignore the Z bit
+				//moveModifiers[i] = new MoveSetZModifier(duration, getXCoordinates(i), getXCoordinates(i + 1), getYCoordinates(i), getYCoordinates(i + 1), null, pEaseFunction);
+				IllegalArgumentException error = new IllegalArgumentException("Orthographic map not supported currently.");
+				throw error;
 			}
-			
-		}
 
+		}
+		
 		/* Create a new SequenceModifier and register the listeners that
 		 * call through to mEntityModifierListener and mPathModifierListener. */
 		this.mSequenceModifier = new SequenceModifier<IEntity>(
@@ -135,76 +192,77 @@ public class AStarPathTileModifier extends EntityModifier {
 					public void onSubSequenceStarted(final IModifier<IEntity> pModifier, final IEntity pEntity, final int pIndex) {
 						mCurrentIndex = pIndex;
 						if(pIndex < pathSize)
-		                {
-		            		switch(pPath.getDirectionToNextStep(pIndex)) {
-				            		case UP:
-				            			if(mIsometric){
-				            				if(AStarPathTileModifier.this.mPathModifierListener != null) {
-			        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveUpRight(AStarPathTileModifier.this, pEntity, pIndex);
-			        						}
-				            			}else{
-				            				if(AStarPathTileModifier.this.mPathModifierListener != null) {
-			        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveUp(AStarPathTileModifier.this, pEntity, pIndex);
-			        						}
-				            			}
-				            			break;
-				            		case DOWN:
-				            			if(mIsometric){
-				            				if(AStarPathTileModifier.this.mPathModifierListener != null) {
-			        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveDownLeft(AStarPathTileModifier.this, pEntity, pIndex);
-			        						}
-				            			}else{
-				            				if(AStarPathTileModifier.this.mPathModifierListener != null) {
-			        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveDown(AStarPathTileModifier.this, pEntity, pIndex);
-			        						}
-				            			}
-				            			break;
-				            		case LEFT:
-				            			if(mIsometric){
-				            				if(AStarPathTileModifier.this.mPathModifierListener != null) {
-			        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveUpLeft(AStarPathTileModifier.this, pEntity, pIndex);
-			        						}
-				            			}else{
-				            				if(AStarPathTileModifier.this.mPathModifierListener != null) {
-			        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveLeft(AStarPathTileModifier.this, pEntity, pIndex);
-			        						}
-				            			}
-				            			break;
-				            		case RIGHT:
-				            			if(mIsometric){
-				            				if(AStarPathTileModifier.this.mPathModifierListener != null) {
-			        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveDownRight(AStarPathTileModifier.this, pEntity, pIndex);
-			        						}
-				            			}else{
-				            				if(AStarPathTileModifier.this.mPathModifierListener != null) {
-			        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveRight(AStarPathTileModifier.this, pEntity, pIndex);
-			        						}
-				            			}
-				            			break;
-		                            case UP_LEFT:
-		                            	if(AStarPathTileModifier.this.mPathModifierListener != null) {
-		        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveUpLeft(AStarPathTileModifier.this, pEntity, pIndex);
-		        						}
-		                                break;
-		                            case UP_RIGHT:
-		                            	if(AStarPathTileModifier.this.mPathModifierListener != null) {
-		        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveUpRight(AStarPathTileModifier.this, pEntity, pIndex);
-		        						}
-	                                    break;
-		                            case DOWN_LEFT:
-		                            	if(AStarPathTileModifier.this.mPathModifierListener != null) {
-		        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveDownLeft(AStarPathTileModifier.this, pEntity, pIndex);
-		        						}
-	                                    break;
-		                            case DOWN_RIGHT:
-		                            	if(AStarPathTileModifier.this.mPathModifierListener != null) {
-		        							AStarPathTileModifier.this.mPathModifierListener.onNextMoveDownRight(AStarPathTileModifier.this, pEntity, pIndex);
-		        						}
-	                                	break;
-		                        	default:
-		                    }
-		                }
-						
+						{
+							//We need to translate to isometric view, so move up = move NW = up right
+							switch(pPath.getDirectionToNextStep(pIndex)) {
+							case UP:
+								if(mIsometric){
+									if(AStarPathTileModifier.this.mPathModifierListener != null) {
+										AStarPathTileModifier.this.mPathModifierListener.onNextMoveUpRight(AStarPathTileModifier.this, pEntity, pIndex);
+									}
+								}else{
+									if(AStarPathTileModifier.this.mPathModifierListener != null) {
+										AStarPathTileModifier.this.mPathModifierListener.onNextMoveUp(AStarPathTileModifier.this, pEntity, pIndex);
+									}
+								}
+								break;
+							case DOWN:
+								if(mIsometric){
+									if(AStarPathTileModifier.this.mPathModifierListener != null) {
+										AStarPathTileModifier.this.mPathModifierListener.onNextMoveDownLeft(AStarPathTileModifier.this, pEntity, pIndex);
+									}
+								}else{
+									if(AStarPathTileModifier.this.mPathModifierListener != null) {
+										AStarPathTileModifier.this.mPathModifierListener.onNextMoveDown(AStarPathTileModifier.this, pEntity, pIndex);
+									}
+								}
+								break;
+							case LEFT:
+								if(mIsometric){
+									if(AStarPathTileModifier.this.mPathModifierListener != null) {
+										AStarPathTileModifier.this.mPathModifierListener.onNextMoveUpLeft(AStarPathTileModifier.this, pEntity, pIndex);
+									}
+								}else{
+									if(AStarPathTileModifier.this.mPathModifierListener != null) {
+										AStarPathTileModifier.this.mPathModifierListener.onNextMoveLeft(AStarPathTileModifier.this, pEntity, pIndex);
+									}
+								}
+								break;
+							case RIGHT:
+								if(mIsometric){
+									if(AStarPathTileModifier.this.mPathModifierListener != null) {
+										AStarPathTileModifier.this.mPathModifierListener.onNextMoveDownRight(AStarPathTileModifier.this, pEntity, pIndex);
+									}
+								}else{
+									if(AStarPathTileModifier.this.mPathModifierListener != null) {
+										AStarPathTileModifier.this.mPathModifierListener.onNextMoveRight(AStarPathTileModifier.this, pEntity, pIndex);
+									}
+								}
+								break;
+							case UP_LEFT:
+								if(AStarPathTileModifier.this.mPathModifierListener != null) {
+									AStarPathTileModifier.this.mPathModifierListener.onNextMoveUpLeft(AStarPathTileModifier.this, pEntity, pIndex);
+								}
+								break;
+							case UP_RIGHT:
+								if(AStarPathTileModifier.this.mPathModifierListener != null) {
+									AStarPathTileModifier.this.mPathModifierListener.onNextMoveUpRight(AStarPathTileModifier.this, pEntity, pIndex);
+								}
+								break;
+							case DOWN_LEFT:
+								if(AStarPathTileModifier.this.mPathModifierListener != null) {
+									AStarPathTileModifier.this.mPathModifierListener.onNextMoveDownLeft(AStarPathTileModifier.this, pEntity, pIndex);
+								}
+								break;
+							case DOWN_RIGHT:
+								if(AStarPathTileModifier.this.mPathModifierListener != null) {
+									AStarPathTileModifier.this.mPathModifierListener.onNextMoveDownRight(AStarPathTileModifier.this, pEntity, pIndex);
+								}
+								break;
+							default:
+							}
+						}
+
 						if(AStarPathTileModifier.this.mPathModifierListener != null) {
 							AStarPathTileModifier.this.mPathModifierListener.onPathWaypointStarted(AStarPathTileModifier.this, pEntity, pIndex);
 						}
@@ -234,39 +292,39 @@ public class AStarPathTileModifier extends EntityModifier {
 						}
 					}
 				},
-				moveModifiers
-		);
+				this.moveModifiers
+				);
 	}
-	
+
 	private float getXCoordinates(int pIndex) {
 		return (mPath.getX(pIndex) * mTileDimensions[0]) + 4;
 	}
-	
+
 	private float getYCoordinates(int pIndex) {
 		return (mPath.getY(pIndex) * mTileDimensions[1]) + 4;
 	}
 
 	/**
 	 * Get the segment length. Can now calculate isometric paths as well. <br>
-	 * For an isometric map this will always be the same.
+	 * For an isometric map this will always be the same. So call one.
 	 * 
 	 * @param pIndex {@link Integer} index of tile in path
 	 * @return {@link Float} of segment length.
 	 */
 	private float getSegmentLength(int pIndex) {
-        final int nextSegmentIndex = pIndex + 1;
-        float dx = 0;
-        float dy = 0;
-        if(this.mIsometric){
-        	float[] current = this.getTileCentre(pIndex);
-        	float[] neighbour = this.getTileCentre(nextSegmentIndex);
-        	dx = current[0] - neighbour[0];
-            dy = current[1] - neighbour[1];
-        }else{
-        	dx = getXCoordinates(pIndex) - getXCoordinates(nextSegmentIndex);
-            dy = getYCoordinates(pIndex) - getYCoordinates(nextSegmentIndex);
-        }
-        return FloatMath.sqrt(dx * dx + dy * dy);
+		final int nextSegmentIndex = pIndex + 1;
+		float dx = 0;
+		float dy = 0;
+		if(this.mIsometric){
+			float[] current = this.getTileCentre(pIndex);
+			float[] neighbour = this.getTileCentre(nextSegmentIndex);
+			dx = current[0] - neighbour[0];
+			dy = current[1] - neighbour[1];
+		}else{
+			dx = getXCoordinates(pIndex) - getXCoordinates(nextSegmentIndex);
+			dy = getYCoordinates(pIndex) - getYCoordinates(nextSegmentIndex);
+		}
+		return FloatMath.sqrt(dx * dx + dy * dy);
 	}
 
 	protected AStarPathTileModifier(final AStarPathTileModifier pPathModifier) throws DeepCopyNotSupportedException  {
@@ -277,7 +335,7 @@ public class AStarPathTileModifier extends EntityModifier {
 		}
 		this.mSequenceModifier = pPathModifier.mSequenceModifier.deepCopy();
 	}
-	
+
 	@Override
 	public AStarPathTileModifier deepCopy() throws DeepCopyNotSupportedException {
 		return new AStarPathTileModifier(this);
@@ -331,17 +389,17 @@ public class AStarPathTileModifier extends EntityModifier {
 	// Methods
 	// ===========================================================
 	/**
-	 * Get the tile centre for an isometric map.
+	 * Get the tile centre for an isometric map. If there is an offset and draw origin it is applied.
 	 * @param pIndex {@link Integer} of path index which relates to a tile.
 	 * @return result of {@link #getIsoTileCentreAt(int, int)} {@link Float} array <br> <b>Element[0]</b> = X <b>Element[1]</b> = Y
 	 */
-	private float[] getTileCentre(final int pIndex){
+	public float[] getTileCentre(final int pIndex){
 		final int pTileRow = this.mPath.getY(pIndex);
 		final int pTileColumn = this.mPath.getX(pIndex);
 		return this.getIsoTileCentreAt(pTileColumn, pTileRow);
 	}
 	/**
-	 * Get the X and Y coordinates of a given tile location.
+	 * Get the X and Y coordinates of a given tile location. If there is an offset and draw origin it is applied.
 	 * @param pTileColumn {@link Integer} of tile Column, this is {@link Path#getX(int)}
 	 * @param pTileRow {@link Integer} of tile row, this is {@link Path#getY(int)}
 	 * @return {@link Float} array <br> <b>Element[0]</b> = X <b>Element[1]</b> = Y
@@ -351,10 +409,10 @@ public class AStarPathTileModifier extends EntityModifier {
 		float firstTileYCen = this.mDrawOriginY + (this.mTileDimensions[0] /2);
 		float isoX = 0;
 		float isoY = 0;
-		
+
 		isoX = firstTileXCen - (pTileRow * (this.mTileDimensions[1] /2));
 		isoY = firstTileYCen + (pTileRow * (this.mTileDimensions[0] /2));
-		
+
 		isoX = isoX + (pTileColumn * (this.mTileDimensions[1] /2));
 		isoY = isoY + (pTileColumn * (this.mTileDimensions[0] /2));
 		isoX += this.mOffset[0];
@@ -362,7 +420,7 @@ public class AStarPathTileModifier extends EntityModifier {
 		return new float[] { isoX, isoY };
 	}
 	/**
-	 * Want to update the speed of the modifiers? This will update the modifiers from the current modifer in use.
+	 * Want to update the speed of the modifiers? This will update the modifiers from the current modifier in use.
 	 * @param pSpeed {@link Float} speed to use.
 	 * @param pX {@link Float} of entity X
 	 * @param pY {@link Float} of entity Y
@@ -378,16 +436,19 @@ public class AStarPathTileModifier extends EntityModifier {
 					pFromValueA = pX;
 					pFromValueB = pY;
 				}
-				
 				this.moveModifiers[i].reset(pSpeed, pFromValueA, pToValueA, pFromValueB, pToValueB);
 			}
 		}
 	}
-	
+
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-
+	/**
+	 * Supports Isometric movement.
+	 * @author Paul Robinson
+	 * @since 20 Sep 2012 18:52:19
+	 */
 	public static interface IAStarPathTileModifierListener {
 		// ===========================================================
 		// Constants
@@ -409,5 +470,26 @@ public class AStarPathTileModifier extends EntityModifier {
 		public void onPathWaypointStarted(final AStarPathTileModifier pPathModifier, final IEntity pEntity, final int pWaypointIndex);
 		public void onPathWaypointFinished(final AStarPathTileModifier pPathModifier, final IEntity pEntity, final int pWaypointIndex);
 		public void onPathFinished(final AStarPathTileModifier pPathModifier, final IEntity pEntity);
+	}
+	/**
+	 * Get the Z Order for a given location, allows a custom Z numbering system to be implemented.
+	 * @author Paul Robinson
+	 * @since 20 Sep 2012 18:52:15
+	 */
+	public static interface IZOrderMethod{
+		/**
+		 * Get the Z index for a given coordinate
+		 * @param pXLocation {@link Float} X coordinate
+		 * @param pYLocation {@link Float} Y coordinate
+		 * @return {@link Integer} Z index to use.
+		 */
+		public int getZOrder(final float pXLocation, final float pYLocation);
+		/**
+		 * Get the Z index for a given tile location.
+		 * @param pRow {@link Integer} Tile Row
+		 * @param pColumn {@link Integer} Tile Column
+		 * @return {@link Integer} Z index to use.
+		 */
+		public int getZOrder(final int pRow, final int pColumn);
 	}
 }

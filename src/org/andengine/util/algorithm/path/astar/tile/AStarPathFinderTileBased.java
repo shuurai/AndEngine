@@ -88,7 +88,6 @@ public class AStarPathFinderTileBased<T> implements ITilePathFinder<T> {
 					}
 
 					if(!allowDiagonalMovement && (dX != 0) && (dY != 0)) {
-						//Log.i("ASTAR", "no dialg DX != 0 && DY != 0: ");
 						continue;
 					}
 					final int neighborNodeX = dX + currentNode.mX; //Col
