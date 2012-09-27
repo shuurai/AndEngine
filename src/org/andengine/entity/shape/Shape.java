@@ -2,6 +2,7 @@ package org.andengine.entity.shape;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.Entity;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.shader.ShaderProgram;
 import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.TextureOptions;
@@ -32,6 +33,8 @@ public abstract class Shape extends Entity implements IShape {
 	protected boolean mBlendingEnabled;
 
 	protected ShaderProgram mShaderProgram;
+	
+	protected ITouchAreaListener mTouchAreaInterface;
 
 	// ===========================================================
 	// Constructors
@@ -145,6 +148,14 @@ public abstract class Shape extends Entity implements IShape {
 
 		this.onUpdateVertices();
 	}
+	
+	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+		if(this.mTouchAreaInterface != null){
+			return this.mTouchAreaInterface.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+		}else{
+			return false;
+		}
+	}
 
 	@Override
 	public void reset() {
@@ -180,6 +191,10 @@ public abstract class Shape extends Entity implements IShape {
 		if (pTextureOptions.mPreMultiplyAlpha) {
 			this.setBlendFunction(IShape.BLENDFUNCTION_SOURCE_PREMULTIPLYALPHA_DEFAULT, IShape.BLENDFUNCTION_DESTINATION_PREMULTIPLYALPHA_DEFAULT);
 		}
+	}
+	
+	public void setOnTouchAreaInterface(final ITouchAreaListener pTouchAreaListener){
+		this.mTouchAreaInterface = pTouchAreaListener;
 	}
 
 	// ===========================================================
