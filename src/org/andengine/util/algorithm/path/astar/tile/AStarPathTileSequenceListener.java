@@ -45,6 +45,7 @@ public class AStarPathTileSequenceListener {
 	private SequenceModifier<IEntity> mSequenceModifier;
 	private boolean mStop = false;
 	private int mStopCount = 0;
+	private boolean mLastItem = false;
 
 	// ===========================================================
 	// Constructors
@@ -172,8 +173,15 @@ public class AStarPathTileSequenceListener {
 			@Override
 			public void onSubSequenceFinished(final IModifier<IEntity> pEntityModifier, final IEntity pEntity,
 					final int pIndex) {
+				// If stopping, only stop if we're not on the last sub sequence,
+				// otherwise just let it finish.
+
+				if (pIndex == mPathSize - 2) { // -2 because if we had 5 tiles,
+												// pIndex is between 0 and3
+					Log.i("AStarPathTileSequenceListener", "---Last Tile?");
+				}
 				if (mPathModifierListener != null) {
-					if (mStop) {
+					if (mStop && pIndex != mPathSize - 2) {
 						Log.i("AStarPathTileSequenceListener", "---STOPPED");
 						mStopCount++;
 						// mPathModifierListener.onPathFinished(mParent,
@@ -184,6 +192,11 @@ public class AStarPathTileSequenceListener {
 							// mPathModifierListener.onPathFinished(mParent,
 							// pEntity);
 						}
+					} else if (mStop && pIndex == mPathSize - 2) {
+						mStopCount++;
+						//last sub sequence so just call finish
+						Log.i("AStarPathTileSequenceListener", "---STOPPED but on last sequence");
+						mLastItem = true;
 					} else {
 						mPathModifierListener.onPathWaypointFinished(mParent, pEntity, pIndex);
 					}
@@ -209,7 +222,7 @@ public class AStarPathTileSequenceListener {
 				// mParent.onModifierFinished(pEntity);
 				if (mPathModifierListener != null) {
 					Log.i("AStarPathTileSequenceListener", "---mPathModifierListener");
-					if (mStop) {
+					if (mStop && !mLastItem) {
 						Log.i("AStarPathTileSequenceListener", "---mStop");
 						if (mStopCount == 1) {
 							Log.i("AStarPathTileSequenceListener", "---mStopCount");
@@ -217,12 +230,11 @@ public class AStarPathTileSequenceListener {
 							mPathModifierListener = null;
 							mModifierListener = null;
 						}
-					}else{
+					} else {
 						Log.i("AStarPathTileSequenceListener", "---mStop-FALSE");
 						mPathModifierListener.onPathFinished(mParent, pEntity);
 					}
-					
-					
+
 					// mPathModifierListener.onPathFinished(mParent, pEntity);
 				}
 			}
