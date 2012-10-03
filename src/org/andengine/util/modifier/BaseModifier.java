@@ -82,7 +82,7 @@ public abstract class BaseModifier<T> implements IModifier<T> {
 	// Methods
 	// ===========================================================
 
-	protected void onModifierStarted(final T pItem) {
+	public void onModifierStarted(final T pItem) {
 		final SmartList<IModifierListener<T>> modifierListeners = this.mModifierListeners;
 		final int modifierListenerCount = modifierListeners.size();
 		for (int i = modifierListenerCount - 1; i >= 0; i--) {
@@ -90,7 +90,7 @@ public abstract class BaseModifier<T> implements IModifier<T> {
 		}
 	}
 
-	protected void onModifierFinished(final T pItem) {
+	public void onModifierFinished(final T pItem) {
 		final SmartList<IModifierListener<T>> modifierListeners = this.mModifierListeners;
 		final int modifierListenerCount = modifierListeners.size();
 		for (int i = modifierListenerCount - 1; i >= 0; i--) {

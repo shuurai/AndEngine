@@ -5,9 +5,7 @@ import org.andengine.entity.modifier.EntityModifier;
 import org.andengine.entity.modifier.MoveSetZModifier;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.util.algorithm.path.Path;
-import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.SequenceModifier;
-import org.andengine.util.modifier.SequenceModifier.ISubSequenceModifierListener;
 import org.andengine.util.modifier.ease.EaseLinear;
 import org.andengine.util.modifier.ease.IEaseFunction;
 
@@ -22,7 +20,7 @@ import android.util.FloatMath;
  * @author Paul Robinson
  * @since 7 Sep 2012 19:32:59
  */
-public class AStarPathTileModifier extends EntityModifier {
+public class AStarPathTileModifier extends EntityModifier implements IForcedStop {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -33,6 +31,7 @@ public class AStarPathTileModifier extends EntityModifier {
 
 	private final SequenceModifier<IEntity> mSequenceModifier;
 	private IAStarPathTileModifierListener mPathModifierListener;
+	private AStarPathTileSequenceListener mAStarPathTileSequenceListner;
 	private final Path mPath;
 	/**
 	 * Tile dimensions.
@@ -57,17 +56,21 @@ public class AStarPathTileModifier extends EntityModifier {
 	 */
 	private float[] mOffset;
 	/**
-	 * The segment length will always be the same on an isometric map, so just store it once.
+	 * The segment length will always be the same on an isometric map with no diagonal movement, so just store it once.
 	 */
 	private float mSegmentLength = 0;
 	private float modifierCount = 0;
 	private MoveSetZModifier[] moveModifiers;
+	private float mStandardSpeedPerModifier = 0;
+	private float mCurrentSpeedPerModifier = 0;
 	/**
-	 * When animating, help keep track of what modifier is currently executing. 
-	 * Helps with speeding up entity (Start from current modifier till finish)
+	 * {@link IZOrderMethod} to set correct Z index.
 	 */
-	private int mCurrentIndex = 0;
 	private IZOrderMethod mGetZOrder;
+	/**
+	 * Has this been stopped, i.e. once it sub sequence has finished.
+	 */
+	private boolean mStopped = false;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -135,9 +138,14 @@ public class AStarPathTileModifier extends EntityModifier {
 		this.mSegmentLength = this.getSegmentLength(0);
 		for(int i = 0; i < this.modifierCount; i++) {
 			if(this.mIsometric){
+				/*
+				// not in use!
 				velocity = (pPath.getLength() * this.mTileDimensions[0]) / pDuration;
 				duration = this.mSegmentLength  / velocity;
+				*/
 				duration = pDuration;
+				this.mStandardSpeedPerModifier = duration;
+				this.mCurrentSpeedPerModifier = this.mStandardSpeedPerModifier;
 				/*
 				 * Get the centre of the tiles.
 				 */
@@ -172,6 +180,8 @@ public class AStarPathTileModifier extends EntityModifier {
 				}
 				int zFrom = this.mGetZOrder.getZOrder(this.mPath.getY(i), this.mPath.getX(i));
 				int zTo = this.mGetZOrder.getZOrder(this.mPath.getY(i+1), this.mPath.getX(i+1));
+				//int zFrom = this.mGetZOrder.getZOrder(this.mPath.getX(i), this.mPath.getY(i));
+				//int zTo = this.mGetZOrder.getZOrder(this.mPath.getX(i+1), this.mPath.getY(i+1));
 				this.moveModifiers[i] = new MoveSetZModifier(duration, tileCen[0], tileCenNeigbour[0], tileCen[1], tileCenNeigbour[1], zFrom, zTo, ZSwapLoc, null, pEaseFunction);
 			}else{
 				velocity = (pPath.getLength() * pTileDimensions[0]) / pDuration;
@@ -183,9 +193,11 @@ public class AStarPathTileModifier extends EntityModifier {
 			}
 
 		}
-		
+		this.mAStarPathTileSequenceListner = new AStarPathTileSequenceListener(this.mPathModifierListener, this.moveModifiers, pPath, true, this);
+		this.mSequenceModifier = this.mAStarPathTileSequenceListner.getSequenceModifier();
 		/* Create a new SequenceModifier and register the listeners that
 		 * call through to mEntityModifierListener and mPathModifierListener. */
+		/*
 		this.mSequenceModifier = new SequenceModifier<IEntity>(
 				new ISubSequenceModifierListener<IEntity>() {
 					@Override
@@ -294,6 +306,7 @@ public class AStarPathTileModifier extends EntityModifier {
 				},
 				this.moveModifiers
 				);
+		*/
 	}
 
 	private float getXCoordinates(int pIndex) {
@@ -382,12 +395,34 @@ public class AStarPathTileModifier extends EntityModifier {
 
 	@Override
 	public float onUpdate(final float pSecondsElapsed, final IEntity pEntity) {
-		return this.mSequenceModifier.onUpdate(pSecondsElapsed, pEntity);
+		if(this.mStopped){
+			return 0f;
+		}else{
+			return this.mSequenceModifier.onUpdate(pSecondsElapsed, pEntity);	
+		}
+		//return this.mSequenceModifier.onUpdate(pSecondsElapsed, pEntity);
 	}
 
+	
+	// ===========================================================
+	// IForcedStop
+	// ===========================================================
+	@Override
+	public void finished() {
+		this.mStopped = true;
+	}
+	
 	// ===========================================================
 	// Methods
 	// ===========================================================
+	/**
+	 * Get the current speed used for each modifier.
+	 * @return {@link Float} of current speed used for each modifier.
+	 */
+	public float getCurrentSpeedPerModifier(){
+		return this.mCurrentSpeedPerModifier;
+	}
+	
 	/**
 	 * Get the tile centre for an isometric map. If there is an offset and draw origin it is applied.
 	 * @param pIndex {@link Integer} of path index which relates to a tile.
@@ -419,6 +454,14 @@ public class AStarPathTileModifier extends EntityModifier {
 		isoY += this.mOffset[1];
 		return new float[] { isoX, isoY };
 	}
+	
+	public void stop(){
+		this.mAStarPathTileSequenceListner.stop();
+	}
+	
+	public void reduceSpeedToStandard(){
+		
+	}
 	/**
 	 * Want to update the speed of the modifiers? This will update the modifiers from the current modifier in use.
 	 * @param pSpeed {@link Float} speed to use.
@@ -426,13 +469,14 @@ public class AStarPathTileModifier extends EntityModifier {
 	 * @param pY {@link Float} of entity Y
 	 */
 	public void updateSpeed(final float pSpeed, final float pX, final float pY){
-		for(int i = this.mCurrentIndex; i < this.modifierCount; i++) {
+		this.mCurrentSpeedPerModifier = pSpeed;
+		for(int i = this.mAStarPathTileSequenceListner.getCurrentIndex(); i < this.modifierCount; i++) {
 			if(this.mIsometric){
 				float pFromValueA = this.moveModifiers[i].getFromValueA();
 				float pToValueA = this.moveModifiers[i].getToValueA();
 				float pFromValueB = this.moveModifiers[i].getFromValueB();
 				float pToValueB = this.moveModifiers[i].getToValueB();
-				if(i == this.mCurrentIndex){
+				if(i == this.mAStarPathTileSequenceListner.getCurrentIndex()){
 					pFromValueA = pX;
 					pFromValueB = pY;
 				}
@@ -492,4 +536,6 @@ public class AStarPathTileModifier extends EntityModifier {
 		 */
 		public int getZOrder(final int pRow, final int pColumn);
 	}
+
+
 }
