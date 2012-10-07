@@ -58,6 +58,7 @@ public class AStarPathTileModifier extends EntityModifier implements IForcedStop
 	/**
 	 * The segment length will always be the same on an isometric map with no diagonal movement, so just store it once.
 	 */
+	@SuppressWarnings("unused")
 	private float mSegmentLength = 0;
 	private float modifierCount = 0;
 	private MoveSetZModifier[] moveModifiers;
@@ -456,12 +457,9 @@ public class AStarPathTileModifier extends EntityModifier implements IForcedStop
 	}
 	
 	public void stop(){
-		this.mAStarPathTileSequenceListner.stop();
+		this.mSequenceModifier.stopOnNextModifier();
 	}
 	
-	public void reduceSpeedToStandard(){
-		
-	}
 	/**
 	 * Want to update the speed of the modifiers? This will update the modifiers from the current modifier in use.
 	 * @param pSpeed {@link Float} speed to use.
@@ -484,6 +482,17 @@ public class AStarPathTileModifier extends EntityModifier implements IForcedStop
 			}
 		}
 	}
+	/**
+	 * Get the current path index being executed
+	 * @return {@link Integer} of path index.
+	 */
+	public int getCurrentPathIndex(){
+		return this.mAStarPathTileSequenceListner.getCurrentIndex();
+	}
+	
+	public MoveSetZModifier getCurrentModifier(){
+		return this.moveModifiers[this.getCurrentPathIndex()];
+	}
 
 	// ===========================================================
 	// Inner and Anonymous Classes
@@ -502,18 +511,18 @@ public class AStarPathTileModifier extends EntityModifier implements IForcedStop
 		// Fields
 		// ===========================================================
 
-		public void onPathStarted(final AStarPathTileModifier pPathModifier, final IEntity pEntity);
-		public void onNextMoveUpRight(AStarPathTileModifier aStarPathModifier, IEntity pEntity, int pIndex);
-		public void onNextMoveUpLeft(AStarPathTileModifier aStarPathModifier, IEntity pEntity, int pIndex);
-		public void onNextMoveDownRight(AStarPathTileModifier aStarPathModifier, IEntity pEntity, int pIndex);
-		public void onNextMoveDownLeft(AStarPathTileModifier aStarPathModifier, IEntity pEntity, int pIndex);
-		public void onNextMoveLeft(AStarPathTileModifier aStarPathModifier, IEntity pEntity, int pIndex);
-		public void onNextMoveUp(AStarPathTileModifier aStarPathModifier, IEntity pEntity, int pIndex);
-		public void onNextMoveRight(AStarPathTileModifier aStarPathModifier, IEntity pEntity, int pIndex);
-		public void onNextMoveDown(AStarPathTileModifier aStarPathModifier, IEntity pEntity, int pIndex);
-		public void onPathWaypointStarted(final AStarPathTileModifier pPathModifier, final IEntity pEntity, final int pWaypointIndex);
-		public void onPathWaypointFinished(final AStarPathTileModifier pPathModifier, final IEntity pEntity, final int pWaypointIndex);
-		public void onPathFinished(final AStarPathTileModifier pPathModifier, final IEntity pEntity);
+		public void onPathStarted(final EntityModifier pPathModifier, final IEntity pEntity);
+		public void onNextMoveUpRight(EntityModifier aStarPathModifier, IEntity pEntity, int pIndex);
+		public void onNextMoveUpLeft(EntityModifier aStarPathModifier, IEntity pEntity, int pIndex);
+		public void onNextMoveDownRight(EntityModifier aStarPathModifier, IEntity pEntity, int pIndex);
+		public void onNextMoveDownLeft(EntityModifier aStarPathModifier, IEntity pEntity, int pIndex);
+		public void onNextMoveLeft(EntityModifier aStarPathModifier, IEntity pEntity, int pIndex);
+		public void onNextMoveUp(EntityModifier aStarPathModifier, IEntity pEntity, int pIndex);
+		public void onNextMoveRight(EntityModifier aStarPathModifier, IEntity pEntity, int pIndex);
+		public void onNextMoveDown(EntityModifier aStarPathModifier, IEntity pEntity, int pIndex);
+		public void onPathWaypointStarted(final EntityModifier pPathModifier, final IEntity pEntity, final int pWaypointIndex);
+		public void onPathWaypointFinished(final EntityModifier pPathModifier, final IEntity pEntity, final int pWaypointIndex);
+		public void onPathFinished(final EntityModifier pPathModifier, final IEntity pEntity);
 	}
 	/**
 	 * Get the Z Order for a given location, allows a custom Z numbering system to be implemented.

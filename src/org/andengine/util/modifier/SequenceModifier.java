@@ -7,7 +7,9 @@ import org.andengine.util.modifier.util.ModifierUtils;
 /**
  * (c) 2010 Nicolas Gramlich
  * (c) 2011 Zynga Inc.
- *
+ * 
+ * Call {@link #stopOnNextModifier()} to stop the sequence after current modifier.
+ * 
  * @author Nicolas Gramlich
  * @since 19:39:25 - 19.03.2010
  */
@@ -29,6 +31,8 @@ public class SequenceModifier<T> extends BaseModifier<T> implements IModifierLis
 	private final float mDuration;
 
 	private boolean mFinishedCached;
+	
+	private boolean mStopped = false;
 
 	// ===========================================================
 	// Constructors
@@ -134,7 +138,8 @@ public class SequenceModifier<T> extends BaseModifier<T> implements IModifierLis
 		} else {
 			this.mSubSequenceModifiers[this.mCurrentSubSequenceModifierIndex].removeModifierListener(this);
 		}
-
+		
+		this.mStopped = false;
 		this.mCurrentSubSequenceModifierIndex = 0;
 		this.mFinished = false;
 		this.mSecondsElapsed = 0;
@@ -166,22 +171,31 @@ public class SequenceModifier<T> extends BaseModifier<T> implements IModifierLis
 		pModifier.removeModifierListener(this);
 
 		this.mCurrentSubSequenceModifierIndex++;
-
-		if (this.mCurrentSubSequenceModifierIndex < this.mSubSequenceModifiers.length) {
-			final IModifier<T> nextSubSequenceModifier = this.mSubSequenceModifiers[this.mCurrentSubSequenceModifierIndex];
-			nextSubSequenceModifier.addModifierListener(this);
-		} else {
+		if(this.mStopped){
 			this.mFinished = true;
 			this.mFinishedCached = true;
 
 			this.onModifierFinished(pItem);
+		}else{
+			if(this.mCurrentSubSequenceModifierIndex < this.mSubSequenceModifiers.length) {
+				final IModifier<T> nextSubSequenceModifier = this.mSubSequenceModifiers[this.mCurrentSubSequenceModifierIndex];
+				nextSubSequenceModifier.addModifierListener(this);
+			} else {
+				this.mFinished = true;
+				this.mFinishedCached = true;
+
+				this.onModifierFinished(pItem);
+			}
 		}
+		
 	}
 
 	// ===========================================================
 	// Methods
 	// ===========================================================
-
+	public void stopOnNextModifier(){
+		this.mStopped = true;
+	}
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================

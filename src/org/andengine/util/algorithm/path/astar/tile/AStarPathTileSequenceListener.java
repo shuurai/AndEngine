@@ -1,6 +1,7 @@
 package org.andengine.util.algorithm.path.astar.tile;
 
 import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.EntityModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.modifier.MoveSetZModifier;
 import org.andengine.util.algorithm.path.Path;
@@ -9,9 +10,12 @@ import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.IModifier.IModifierListener;
 import org.andengine.util.modifier.SequenceModifier;
 import org.andengine.util.modifier.SequenceModifier.ISubSequenceModifierListener;
-
-import android.util.Log;
-
+/**
+ * For use from {@link AStarPathTileModifier}
+ * Manages listeners for the move modifiers so they can be update.
+ * @author Paul Robinson
+ * @since 7 Oct 2012 18:32:15
+ */
 public class AStarPathTileSequenceListener {
 	// ===========================================================
 	// Constants
@@ -31,7 +35,6 @@ public class AStarPathTileSequenceListener {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	@SuppressWarnings("unused")
 	/**
 	 * When animating, help keep track of what modifier is currently executing. 
 	 * Helps with speeding up entity (Start from current modifier till finish)
@@ -40,12 +43,9 @@ public class AStarPathTileSequenceListener {
 	private int mPathSize = 0;
 	private Path mPath;
 	private boolean mIsometric = true;
-	private AStarPathTileModifier mParent;
+	private EntityModifier mParent;
 	private MoveSetZModifier[] mMoveModifiers;
 	private SequenceModifier<IEntity> mSequenceModifier;
-	private boolean mStop = false;
-	private int mStopCount = 0;
-	private boolean mLastItem = false;
 
 	// ===========================================================
 	// Constructors
@@ -53,9 +53,11 @@ public class AStarPathTileSequenceListener {
 
 	public AStarPathTileSequenceListener(final IAStarPathTileModifierListener pPathModifierListener,
 			final MoveSetZModifier[] pMoveModifiers, final Path pPath, final boolean pIsometric,
-			final AStarPathTileModifier pParent) {
+			final EntityModifier pParent) {
 		this.mPath = pPath;
-		this.mPathSize = this.mPath.getLength();
+		if(this.mPath !=null){
+			this.mPathSize = this.mPath.getLength();
+		}
 		this.mIsometric = pIsometric;
 		this.mParent = pParent;
 		this.mMoveModifiers = pMoveModifiers;
@@ -84,8 +86,78 @@ public class AStarPathTileSequenceListener {
 	// Methods
 	// ===========================================================
 
-	public void stop() {
-		this.mStop = true;
+	private void animateWithPath(final IModifier<IEntity> pModifier, final IEntity pEntity, final int pIndex) {
+		if (pIndex < mPathSize) {
+			// We need to translate to isometric view, so move up = move
+			// NW = up right
+			switch (mPath.getDirectionToNextStep(pIndex)) {
+			case UP:
+				if (mIsometric) {
+					if (mPathModifierListener != null) {
+						mPathModifierListener.onNextMoveUpRight(mParent, pEntity, pIndex);
+					}
+				} else {
+					if (mPathModifierListener != null) {
+						mPathModifierListener.onNextMoveUp(mParent, pEntity, pIndex);
+					}
+				}
+				break;
+			case DOWN:
+				if (mIsometric) {
+					if (mPathModifierListener != null) {
+						mPathModifierListener.onNextMoveDownLeft(mParent, pEntity, pIndex);
+					}
+				} else {
+					if (mPathModifierListener != null) {
+						mPathModifierListener.onNextMoveDown(mParent, pEntity, pIndex);
+					}
+				}
+				break;
+			case LEFT:
+				if (mIsometric) {
+					if (mPathModifierListener != null) {
+						mPathModifierListener.onNextMoveUpLeft(mParent, pEntity, pIndex);
+					}
+				} else {
+					if (mPathModifierListener != null) {
+						mPathModifierListener.onNextMoveLeft(mParent, pEntity, pIndex);
+					}
+				}
+				break;
+			case RIGHT:
+				if (mIsometric) {
+					if (mPathModifierListener != null) {
+						mPathModifierListener.onNextMoveDownRight(mParent, pEntity, pIndex);
+					}
+				} else {
+					if (mPathModifierListener != null) {
+						mPathModifierListener.onNextMoveRight(mParent, pEntity, pIndex);
+					}
+				}
+				break;
+			case UP_LEFT:
+				if (mPathModifierListener != null) {
+					mPathModifierListener.onNextMoveUpLeft(mParent, pEntity, pIndex);
+				}
+				break;
+			case UP_RIGHT:
+				if (mPathModifierListener != null) {
+					mPathModifierListener.onNextMoveUpRight(mParent, pEntity, pIndex);
+				}
+				break;
+			case DOWN_LEFT:
+				if (mPathModifierListener != null) {
+					mPathModifierListener.onNextMoveDownLeft(mParent, pEntity, pIndex);
+				}
+				break;
+			case DOWN_RIGHT:
+				if (mPathModifierListener != null) {
+					mPathModifierListener.onNextMoveDownRight(mParent, pEntity, pIndex);
+				}
+				break;
+			default:
+			}
+		}
 	}
 
 	private void setupSubSequenceModifierListener() {
@@ -93,76 +165,9 @@ public class AStarPathTileSequenceListener {
 			@Override
 			public void onSubSequenceStarted(final IModifier<IEntity> pModifier, final IEntity pEntity, final int pIndex) {
 				mCurrentIndex = pIndex;
-				if (pIndex < mPathSize) {
-					// We need to translate to isometric view, so move up = move
-					// NW = up right
-					switch (mPath.getDirectionToNextStep(pIndex)) {
-					case UP:
-						if (mIsometric) {
-							if (mPathModifierListener != null) {
-								mPathModifierListener.onNextMoveUpRight(mParent, pEntity, pIndex);
-							}
-						} else {
-							if (mPathModifierListener != null) {
-								mPathModifierListener.onNextMoveUp(mParent, pEntity, pIndex);
-							}
-						}
-						break;
-					case DOWN:
-						if (mIsometric) {
-							if (mPathModifierListener != null) {
-								mPathModifierListener.onNextMoveDownLeft(mParent, pEntity, pIndex);
-							}
-						} else {
-							if (mPathModifierListener != null) {
-								mPathModifierListener.onNextMoveDown(mParent, pEntity, pIndex);
-							}
-						}
-						break;
-					case LEFT:
-						if (mIsometric) {
-							if (mPathModifierListener != null) {
-								mPathModifierListener.onNextMoveUpLeft(mParent, pEntity, pIndex);
-							}
-						} else {
-							if (mPathModifierListener != null) {
-								mPathModifierListener.onNextMoveLeft(mParent, pEntity, pIndex);
-							}
-						}
-						break;
-					case RIGHT:
-						if (mIsometric) {
-							if (mPathModifierListener != null) {
-								mPathModifierListener.onNextMoveDownRight(mParent, pEntity, pIndex);
-							}
-						} else {
-							if (mPathModifierListener != null) {
-								mPathModifierListener.onNextMoveRight(mParent, pEntity, pIndex);
-							}
-						}
-						break;
-					case UP_LEFT:
-						if (mPathModifierListener != null) {
-							mPathModifierListener.onNextMoveUpLeft(mParent, pEntity, pIndex);
-						}
-						break;
-					case UP_RIGHT:
-						if (mPathModifierListener != null) {
-							mPathModifierListener.onNextMoveUpRight(mParent, pEntity, pIndex);
-						}
-						break;
-					case DOWN_LEFT:
-						if (mPathModifierListener != null) {
-							mPathModifierListener.onNextMoveDownLeft(mParent, pEntity, pIndex);
-						}
-						break;
-					case DOWN_RIGHT:
-						if (mPathModifierListener != null) {
-							mPathModifierListener.onNextMoveDownRight(mParent, pEntity, pIndex);
-						}
-						break;
-					default:
-					}
+
+				if (mPath != null) {
+					animateWithPath(pModifier, pEntity, pIndex);
 				}
 
 				if (mPathModifierListener != null) {
@@ -173,33 +178,8 @@ public class AStarPathTileSequenceListener {
 			@Override
 			public void onSubSequenceFinished(final IModifier<IEntity> pEntityModifier, final IEntity pEntity,
 					final int pIndex) {
-				// If stopping, only stop if we're not on the last sub sequence,
-				// otherwise just let it finish.
-
-				if (pIndex == mPathSize - 2) { // -2 because if we had 5 tiles,
-												// pIndex is between 0 and3
-					Log.i("AStarPathTileSequenceListener", "---Last Tile?");
-				}
 				if (mPathModifierListener != null) {
-					if (mStop && pIndex != mPathSize - 2) {
-						Log.i("AStarPathTileSequenceListener", "---STOPPED");
-						mStopCount++;
-						// mPathModifierListener.onPathFinished(mParent,
-						// pEntity);
-						if (mStopCount == 1) {
-							mParent.finished();
-							mModifierListener.onModifierFinished(pEntityModifier, pEntity);
-							// mPathModifierListener.onPathFinished(mParent,
-							// pEntity);
-						}
-					} else if (mStop && pIndex == mPathSize - 2) {
-						mStopCount++;
-						//last sub sequence so just call finish
-						Log.i("AStarPathTileSequenceListener", "---STOPPED but on last sequence");
-						mLastItem = true;
-					} else {
-						mPathModifierListener.onPathWaypointFinished(mParent, pEntity, pIndex);
-					}
+					mPathModifierListener.onPathWaypointFinished(mParent, pEntity, pIndex);
 				}
 			}
 		};
@@ -217,25 +197,9 @@ public class AStarPathTileSequenceListener {
 
 			@Override
 			public void onModifierFinished(final IModifier<IEntity> pEntityModifier, final IEntity pEntity) {
-				Log.i("AStarPathTileSequenceListener", "---onModifierFinished");
 				mParent.onModifierFinished(pEntity);
-				// mParent.onModifierFinished(pEntity);
 				if (mPathModifierListener != null) {
-					Log.i("AStarPathTileSequenceListener", "---mPathModifierListener");
-					if (mStop && !mLastItem) {
-						Log.i("AStarPathTileSequenceListener", "---mStop");
-						if (mStopCount == 1) {
-							Log.i("AStarPathTileSequenceListener", "---mStopCount");
-							mPathModifierListener.onPathFinished(mParent, pEntity);
-							mPathModifierListener = null;
-							mModifierListener = null;
-						}
-					} else {
-						Log.i("AStarPathTileSequenceListener", "---mStop-FALSE");
-						mPathModifierListener.onPathFinished(mParent, pEntity);
-					}
-
-					// mPathModifierListener.onPathFinished(mParent, pEntity);
+					mPathModifierListener.onPathFinished(mParent, pEntity);
 				}
 			}
 		};
