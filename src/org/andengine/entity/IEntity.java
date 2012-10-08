@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.andengine.engine.Engine;
+import org.andengine.engine.ITimeModifiedUpdater;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IDrawHandler;
 import org.andengine.engine.handler.IUpdateHandler;
@@ -373,7 +374,25 @@ public interface IEntity extends IDrawHandler, IUpdateHandler, IDisposable, ITou
 	public Object getUserData();
 
 	public void toString(final StringBuilder pStringBuilder);
-
+	/**
+	 * Register the {@link IEntity} for a time modified update. <br>
+	 * If it parents {@link IEntity} is registered for a modified 
+	 * update than this will get a modified update even if it isn't registered for one.
+	 * @param pRegisterForTimeModifier {@link Boolean} <code>true</code> to get a 
+	 * time modified update or <code>false</code> not to get one.
+	 */
+	public void registerForTimeModifier(final boolean pRegisterForTimeModifier);
+	/**
+	 * Is this {@link IEntity} registered for a time modified update?
+	 * @return {@link Boolean} <code>true</code> for yes, <code>false</code> for no.
+	 */
+	public boolean isRegisteredForTimeModifier();
+	/**
+	 * Set the {@link ITimeModifiedUpdater} to call to get the current time modifier in use.
+	 * <br> If null then a normal will always occur.
+	 * @param pTimeModifiedUpdater {@link ITimeModifiedUpdater} to call to get time modifier.
+	 */
+	public void setTimeModifedUpdater(final ITimeModifiedUpdater pTimeModifiedUpdater);
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================

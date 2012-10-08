@@ -3,6 +3,7 @@ package org.andengine.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.andengine.engine.ITimeModifiedUpdater;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.UpdateHandlerList;
@@ -116,7 +117,9 @@ public class Entity implements IEntity {
 	private Transformation mSceneToLocalTransformation;
 
 	private Object mUserData;
-
+	
+	protected boolean mIsRegisteredForTimeModifiedUpdate = false;
+	protected ITimeModifiedUpdater mTimeModifiedUpdater;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -1027,14 +1030,6 @@ public class Entity implements IEntity {
 	}
 
 	@Override
-	public int getUpdateHandlerCount() {
-		if (this.mUpdateHandlers == null) {
-			return 0;
-		}
-		return this.mUpdateHandlers.size();
-	}
-
-	@Override
 	public void clearUpdateHandlers() {
 		if (this.mUpdateHandlers == null) {
 			return;
@@ -1069,14 +1064,6 @@ public class Entity implements IEntity {
 	@Override
 	public int getEntityModifierCount() {
 		if(this.mEntityModifiers == null) {
-			return 0;
-		}
-		return this.mEntityModifiers.size();
-	}
-
-	@Override
-	public int getEntityModifierCount() {
-		if (this.mEntityModifiers == null) {
 			return 0;
 		}
 		return this.mEntityModifiers.size();
@@ -1435,6 +1422,21 @@ public class Entity implements IEntity {
 		}
 	}
 
+	@Override
+	public void registerForTimeModifier(boolean pRegisterForTimeModifier) {
+		this.mIsRegisteredForTimeModifiedUpdate = pRegisterForTimeModifier;
+	}
+
+	@Override
+	public boolean isRegisteredForTimeModifier() {
+		return this.mIsRegisteredForTimeModifiedUpdate;
+	}
+	
+	@Override
+	public void setTimeModifedUpdater(ITimeModifiedUpdater pTimeModifiedUpdater) {
+		this.mTimeModifiedUpdater = pTimeModifiedUpdater;
+	}
+	
 	// ===========================================================
 	// Methods
 	// ===========================================================
@@ -1599,12 +1601,33 @@ public class Entity implements IEntity {
 			this.mUpdateHandlers.onUpdate(pSecondsElapsed);
 		}
 
-		if ((this.mChildren != null) && !this.mChildrenIgnoreUpdate) {
-			final SmartList<IEntity> children = this.mChildren;
-			final int entityCount = children.size();
-			for (int i = 0; i < entityCount; i++) {
-				final IEntity child = children.get(i);
-				child.onUpdate(pSecondsElapsed);
+		if((this.mChildren != null) && !this.mChildrenIgnoreUpdate) {
+			final SmartList<IEntity> entities = this.mChildren;
+			final int entityCount = entities.size();
+			final int timeModifier;
+			if(this.mTimeModifiedUpdater != null){
+				//Got the time modified updater so get time modifier.
+				timeModifier = this.mTimeModifiedUpdater.getTimeModifier();
+			}else{
+				//Want a time modified update but cannot get time modifier, so set to 1
+				timeModifier = 1;
+			}
+			
+			for(int i = 0; i < entityCount; i++) {
+				if(this.isRegisteredForTimeModifier()){
+					//This entity has a time registered update, so update children with same update seconds.
+					entities.get(i).onUpdate(pSecondsElapsed);	
+				}else{
+					//This entity is not registered for a time modified update.
+					if(entities.get(i).isRegisteredForTimeModifier()){
+						//Child is registered for a time modified update.
+						entities.get(i).onUpdate(pSecondsElapsed * timeModifier);
+					}else{
+						//Isn't so don't update with a time modified update
+						entities.get(i).onUpdate(pSecondsElapsed);
+					}
+				}
+				//entities.get(i).onUpdate(pSecondsElapsed);
 			}
 		}
 	}

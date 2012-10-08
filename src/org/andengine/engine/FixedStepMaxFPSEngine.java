@@ -44,6 +44,7 @@ public class FixedStepMaxFPSEngine extends Engine {
 	private final UpdateHandlerList mConstantUpdateHandlers = new UpdateHandlerList(
 			Engine.UPDATEHANDLERS_CAPACITY_DEFAULT);
 
+	
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -74,21 +75,22 @@ public class FixedStepMaxFPSEngine extends Engine {
 	 * 
 	 */
 	public void pause() {
-		if (BuildConfig.DEBUG) {
-			Debug.d(this.getClass().getSimpleName() + ".pause" + " @(Thread: '" + Thread.currentThread().getName()
-					+ "')");
+		
+		if(this.mPaused){
+			if (BuildConfig.DEBUG) {
+				Debug.d(this.getClass().getSimpleName() + ".Unpause" + " @(Thread: '" + Thread.currentThread().getName()
+						+ "')");
+			}
+			this.mPaused = false;
+		}else{
+			if (BuildConfig.DEBUG) {
+				Debug.d(this.getClass().getSimpleName() + ".pause" + " @(Thread: '" + Thread.currentThread().getName()
+						+ "')");
+			}
+			this.mPaused = true;	
 		}
-		this.mPaused = true;
+		
 	}
-
-	public void resumeAfterPause() {
-		if (BuildConfig.DEBUG) {
-			Debug.d(this.getClass().getSimpleName() + ".resumeAfterPause" + " @(Thread: '"
-					+ Thread.currentThread().getName() + "')");
-		}
-		this.mPaused = false;
-	}
-
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
@@ -102,7 +104,7 @@ public class FixedStepMaxFPSEngine extends Engine {
 		final long stepLength = this.mStepLength;
 		while (this.mSecondsElapsedAccumulator >= stepLength) {
 			final float pSecondsElapsed = stepLength * TimeConstants.SECONDS_PER_NANOSECOND;
-			this.onConstantUpdateUpdateHandlers(pSecondsElapsed);
+			this.onConstantUpdateUpdateHandlers(pSecondsElapsed * this.mTimeModifier);
 			this.mSecondsElapsedAccumulator -= stepLength;
 		}
 		super.onUpdate(pNanosecondsElapsed);
@@ -172,7 +174,6 @@ public class FixedStepMaxFPSEngine extends Engine {
 	// ===========================================================
 	// Methods
 	// ===========================================================
-
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================

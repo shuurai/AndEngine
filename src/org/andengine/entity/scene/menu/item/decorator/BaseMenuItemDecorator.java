@@ -3,6 +3,7 @@ package org.andengine.entity.scene.menu.item.decorator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.andengine.engine.ITimeModifiedUpdater;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.entity.IEntity;
@@ -39,6 +40,8 @@ public abstract class BaseMenuItemDecorator implements IMenuItem {
 	// ===========================================================
 
 	protected final IMenuItem mMenuItem;
+	protected boolean mIsRegisteredForTimeModifiedUpdate = false;
+	protected ITimeModifiedUpdater mTimeModifiedUpdater;
 
 	// ===========================================================
 	// Constructors
@@ -874,6 +877,20 @@ public abstract class BaseMenuItemDecorator implements IMenuItem {
 		this.mMenuItem.toString(pStringBuilder);
 	}
 
+	@Override
+	public void registerForTimeModifier(boolean pRegisterForTimeModifier) {
+		this.mIsRegisteredForTimeModifiedUpdate = pRegisterForTimeModifier;
+	}
+
+	@Override
+	public boolean isRegisteredForTimeModifier() {
+		return this.mIsRegisteredForTimeModifiedUpdate;
+	}
+	
+	@Override
+	public void setTimeModifedUpdater(ITimeModifiedUpdater pTimeModifiedUpdater) {
+		this.mTimeModifiedUpdater = pTimeModifiedUpdater;
+	}
 	// ===========================================================
 	// Methods
 	// ===========================================================
