@@ -21,11 +21,15 @@ import org.andengine.util.adt.transformation.Transformation;
 import org.andengine.util.algorithm.collision.EntityCollisionChecker;
 import org.andengine.util.call.ParameterCallable;
 
-
 /**
+<<<<<<< HEAD
  * (c) 2010 Nicolas Gramlich
  * (c) 2011 Zynga Inc.
  *
+=======
+ * (c) 2010 Nicolas Gramlich (c) 2011 Zynga Inc.
+ * 
+>>>>>>> Now using a pool for Paths and Nodes. ZModifer now using epsilon when deteching Z change.
  * @author Nicolas Gramlich
  * @since 12:00:48 - 08.03.2010
  */
@@ -117,9 +121,10 @@ public class Entity implements IEntity {
 	private Transformation mSceneToLocalTransformation;
 
 	private Object mUserData;
-	
+
 	protected boolean mIsRegisteredForTimeModifiedUpdate = false;
 	protected ITimeModifiedUpdater mTimeModifiedUpdater;
+
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -277,6 +282,9 @@ public class Entity implements IEntity {
 	@Override
 	public void setZIndex(final int pZIndex) {
 		this.mZIndex = pZIndex;
+		if (this.mParent != null) {
+			this.mParent.sortChildren();
+		}
 	}
 
 	@Override
@@ -637,7 +645,8 @@ public class Entity implements IEntity {
 
 	@Override
 	public boolean isRotatedOrScaledOrSkewed() {
-		return (this.mRotation != 0) || (this.mScaleX != 1) || (this.mScaleY != 1) || (this.mSkewX != 0) || (this.mSkewY != 0);
+		return (this.mRotation != 0) || (this.mScaleX != 1) || (this.mScaleY != 1) || (this.mSkewX != 0)
+				|| (this.mSkewY != 0);
 	}
 
 	@Override
@@ -704,7 +713,8 @@ public class Entity implements IEntity {
 	}
 
 	/**
-	 * @param pRed from <code>0.0f</code> to <code>1.0f</code>
+	 * @param pRed
+	 *            from <code>0.0f</code> to <code>1.0f</code>
 	 */
 	@Override
 	public void setRed(final float pRed) {
@@ -714,7 +724,8 @@ public class Entity implements IEntity {
 	}
 
 	/**
-	 * @param pGreen from <code>0.0f</code> to <code>1.0f</code>
+	 * @param pGreen
+	 *            from <code>0.0f</code> to <code>1.0f</code>
 	 */
 	@Override
 	public void setGreen(final float pGreen) {
@@ -724,7 +735,8 @@ public class Entity implements IEntity {
 	}
 
 	/**
-	 * @param pBlue from <code>0.0f</code> to <code>1.0f</code>
+	 * @param pBlue
+	 *            from <code>0.0f</code> to <code>1.0f</code>
 	 */
 	@Override
 	public void setBlue(final float pBlue) {
@@ -734,7 +746,9 @@ public class Entity implements IEntity {
 	}
 
 	/**
-	 * @param pAlpha from <code>0.0f</code> (transparent) to <code>1.0f</code> (opaque)
+	 * @param pAlpha
+	 *            from <code>0.0f</code> (transparent) to <code>1.0f</code>
+	 *            (opaque)
 	 */
 	@Override
 	public void setAlpha(final float pAlpha) {
@@ -744,9 +758,12 @@ public class Entity implements IEntity {
 	}
 
 	/**
-	 * @param pRed from <code>0.0f</code> to <code>1.0f</code>
-	 * @param pGreen from <code>0.0f</code> to <code>1.0f</code>
-	 * @param pBlue from <code>0.0f</code> to <code>1.0f</code>
+	 * @param pRed
+	 *            from <code>0.0f</code> to <code>1.0f</code>
+	 * @param pGreen
+	 *            from <code>0.0f</code> to <code>1.0f</code>
+	 * @param pBlue
+	 *            from <code>0.0f</code> to <code>1.0f</code>
 	 */
 	@Override
 	public void setColor(final float pRed, final float pGreen, final float pBlue) {
@@ -756,10 +773,15 @@ public class Entity implements IEntity {
 	}
 
 	/**
-	 * @param pRed from <code>0.0f</code> to <code>1.0f</code>
-	 * @param pGreen from <code>0.0f</code> to <code>1.0f</code>
-	 * @param pBlue from <code>0.0f</code> to <code>1.0f</code>
-	 * @param pAlpha from <code>0.0f</code> (transparent) to <code>1.0f</code> (opaque)
+	 * @param pRed
+	 *            from <code>0.0f</code> to <code>1.0f</code>
+	 * @param pGreen
+	 *            from <code>0.0f</code> to <code>1.0f</code>
+	 * @param pBlue
+	 *            from <code>0.0f</code> to <code>1.0f</code>
+	 * @param pAlpha
+	 *            from <code>0.0f</code> (transparent) to <code>1.0f</code>
+	 *            (opaque)
 	 */
 	@Override
 	public void setColor(final float pRed, final float pGreen, final float pBlue, final float pAlpha) {
@@ -792,10 +814,10 @@ public class Entity implements IEntity {
 
 	@Override
 	public IEntity getChildByIndex(final int pIndex) {
-	    if (this.mChildren == null) {
-	        return null;
-	    }
-	    return this.mChildren.get(pIndex);
+		if (this.mChildren == null) {
+			return null;
+		}
+		return this.mChildren.get(pIndex);
 	}
 
 	@Override
@@ -867,13 +889,15 @@ public class Entity implements IEntity {
 	}
 
 	@Override
-	public <S extends IEntity> ArrayList<S> queryForSubclass(final IEntityMatcher pEntityMatcher) throws ClassCastException {
+	public <S extends IEntity> ArrayList<S> queryForSubclass(final IEntityMatcher pEntityMatcher)
+			throws ClassCastException {
 		return this.queryForSubclass(pEntityMatcher, new ArrayList<S>());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <L extends List<S>, S extends IEntity> L queryForSubclass(final IEntityMatcher pEntityMatcher, final L pResult) throws ClassCastException {
+	public <L extends List<S>, S extends IEntity> L queryForSubclass(final IEntityMatcher pEntityMatcher,
+			final L pResult) throws ClassCastException {
 		final int childCount = this.getChildCount();
 		for (int i = 0; i < childCount; i++) {
 			final IEntity child = this.mChildren.get(i);
@@ -1020,10 +1044,10 @@ public class Entity implements IEntity {
 		}
 		return this.mUpdateHandlers.removeAll(pUpdateHandlerMatcher);
 	}
-	
+
 	@Override
 	public int getUpdateHandlerCount() {
-		if(this.mUpdateHandlers == null) {
+		if (this.mUpdateHandlers == null) {
 			return 0;
 		}
 		return this.mUpdateHandlers.size();
@@ -1060,10 +1084,10 @@ public class Entity implements IEntity {
 		}
 		return this.mEntityModifiers.removeAll(pEntityModifierMatcher);
 	}
-	
+
 	@Override
 	public int getEntityModifierCount() {
-		if(this.mEntityModifiers == null) {
+		if (this.mEntityModifiers == null) {
 			return 0;
 		}
 		return this.mEntityModifiers.size();
@@ -1186,7 +1210,6 @@ public class Entity implements IEntity {
 			if ((skewX != 0) || (skewY != 0)) {
 				final float localSkewCenterX = this.mLocalSkewCenterX;
 				final float localSkewCenterY = this.mLocalSkewCenterY;
-
 				parentToLocalTransformation.postTranslate(-localSkewCenterX, -localSkewCenterY);
 				parentToLocalTransformation.postSkew(-skewX, -skewY);
 				parentToLocalTransformation.postTranslate(localSkewCenterX, localSkewCenterY);
@@ -1431,35 +1454,47 @@ public class Entity implements IEntity {
 	public boolean isRegisteredForTimeModifier() {
 		return this.mIsRegisteredForTimeModifiedUpdate;
 	}
-	
+
 	@Override
 	public void setTimeModifedUpdater(ITimeModifiedUpdater pTimeModifiedUpdater) {
 		this.mTimeModifiedUpdater = pTimeModifiedUpdater;
 	}
-	
+
 	// ===========================================================
 	// Methods
 	// ===========================================================
 
 	/**
-	 * @param pGLState the currently active {@link GLState} i.e. to apply transformations to.
-	 * @param pCamera the currently active {@link Camera} i.e. to be used for culling.
+	 * @param pGLState
+	 *            the currently active {@link GLState} i.e. to apply
+	 *            transformations to.
+	 * @param pCamera
+	 *            the currently active {@link Camera} i.e. to be used for
+	 *            culling.
 	 */
 	protected void preDraw(final GLState pGLState, final Camera pCamera) {
 
 	}
 
 	/**
-	 * @param pGLState the currently active {@link GLState} i.e. to apply transformations to.
-	 * @param pCamera the currently active {@link Camera} i.e. to be used for culling.
+	 * @param pGLState
+	 *            the currently active {@link GLState} i.e. to apply
+	 *            transformations to.
+	 * @param pCamera
+	 *            the currently active {@link Camera} i.e. to be used for
+	 *            culling.
 	 */
 	protected void draw(final GLState pGLState, final Camera pCamera) {
 
 	}
 
 	/**
-	 * @param pGLState the currently active {@link GLState} i.e. to apply transformations to.
-	 * @param pCamera the currently active {@link Camera} i.e. to be used for culling.
+	 * @param pGLState
+	 *            the currently active {@link GLState} i.e. to apply
+	 *            transformations to.
+	 * @param pCamera
+	 *            the currently active {@link Camera} i.e. to be used for
+	 *            culling.
 	 */
 	protected void postDraw(final GLState pGLState, final Camera pCamera) {
 
@@ -1601,33 +1636,35 @@ public class Entity implements IEntity {
 			this.mUpdateHandlers.onUpdate(pSecondsElapsed);
 		}
 
-		if((this.mChildren != null) && !this.mChildrenIgnoreUpdate) {
+		if ((this.mChildren != null) && !this.mChildrenIgnoreUpdate) {
 			final SmartList<IEntity> entities = this.mChildren;
 			final int entityCount = entities.size();
 			final int timeModifier;
-			if(this.mTimeModifiedUpdater != null){
-				//Got the time modified updater so get time modifier.
+			if (this.mTimeModifiedUpdater != null) {
+				// Got the time modified updater so get time modifier.
 				timeModifier = this.mTimeModifiedUpdater.getTimeModifier();
-			}else{
-				//Want a time modified update but cannot get time modifier, so set to 1
+			} else {
+				// Want a time modified update but cannot get time modifier, so
+				// set to 1
 				timeModifier = 1;
 			}
-			
-			for(int i = 0; i < entityCount; i++) {
-				if(this.isRegisteredForTimeModifier()){
-					//This entity has a time registered update, so update children with same update seconds.
-					entities.get(i).onUpdate(pSecondsElapsed);	
-				}else{
-					//This entity is not registered for a time modified update.
-					if(entities.get(i).isRegisteredForTimeModifier()){
-						//Child is registered for a time modified update.
+
+			for (int i = 0; i < entityCount; i++) {
+				if (this.isRegisteredForTimeModifier()) {
+					// This entity has a time registered update, so update
+					// children with same update seconds.
+					entities.get(i).onUpdate(pSecondsElapsed);
+				} else {
+					// This entity is not registered for a time modified update.
+					if (entities.get(i).isRegisteredForTimeModifier()) {
+						// Child is registered for a time modified update.
 						entities.get(i).onUpdate(pSecondsElapsed * timeModifier);
-					}else{
-						//Isn't so don't update with a time modified update
+					} else {
+						// Isn't so don't update with a time modified update
 						entities.get(i).onUpdate(pSecondsElapsed);
 					}
 				}
-				//entities.get(i).onUpdate(pSecondsElapsed);
+				// entities.get(i).onUpdate(pSecondsElapsed);
 			}
 		}
 	}

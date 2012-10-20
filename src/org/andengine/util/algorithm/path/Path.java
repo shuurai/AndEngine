@@ -1,6 +1,8 @@
 package org.andengine.util.algorithm.path;
 
+import org.andengine.util.adt.pool.GenericPool;
 import org.andengine.util.adt.spatial.Direction;
+import org.andengine.util.algorithm.path.astar.tile.pool.IPool;
 
 /**
  * (c) 2010 Nicolas Gramlich
@@ -9,7 +11,7 @@ import org.andengine.util.adt.spatial.Direction;
  * @author Nicolas Gramlich
  * @since 23:00:24 - 16.08.2010
  */
-public class Path {
+public class Path implements IPool {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -18,14 +20,23 @@ public class Path {
 	// Fields
 	// ===========================================================
 
-	private final int[] mXs;
-	private final int[] mYs;
+	private int[] mXs;
+	private int[] mYs;
+	private GenericPool<Path> mPool;
 
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 
+	public Path(GenericPool<Path> pPool) {
+		this.mPool = pPool;
+	}
+
 	public Path(final int pLength) {
+		this.setup(pLength);
+	}
+
+	public void setup(final int pLength) {
 		this.mXs = new int[pLength];
 		this.mYs = new int[pLength];
 	}
@@ -65,6 +76,22 @@ public class Path {
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
+
+	// ===========================================================
+	// IPool
+	// ===========================================================
+	@Override
+	public void reset() {
+		this.mXs = null;
+		this.mYs = null;
+	}
+
+	@Override
+	public void destroy() {
+		if (this.mPool != null) {
+			this.mPool.recyclePoolItem(this);
+		}
+	}
 
 	// ===========================================================
 	// Methods
