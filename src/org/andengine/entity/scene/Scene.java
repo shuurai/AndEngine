@@ -61,6 +61,8 @@ public class Scene extends Entity {
 	private boolean mOnSceneTouchListenerBindingOnActionDownEnabled = false;
 	private final SparseArray<IOnSceneTouchListener> mOnSceneTouchListenerBindings = new SparseArray<IOnSceneTouchListener>();
 
+	private boolean mBlockTouchAreas = false;
+
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -97,7 +99,7 @@ public class Scene extends Entity {
 	}
 
 	public void setBackgroundEnabled(final boolean pEnabled) {
-		this.mBackgroundEnabled  = pEnabled;
+		this.mBackgroundEnabled = pEnabled;
 	}
 
 	public void setOnSceneTouchListener(final IOnSceneTouchListener pOnSceneTouchListener) {
@@ -144,7 +146,8 @@ public class Scene extends Entity {
 		this.setChildScene(pChildScene, false, false, false);
 	}
 
-	public void setChildScene(final Scene pChildScene, final boolean pModalDraw, final boolean pModalUpdate, final boolean pModalTouch) {
+	public void setChildScene(final Scene pChildScene, final boolean pModalDraw, final boolean pModalUpdate,
+			final boolean pModalTouch) {
 		pChildScene.setParentScene(this);
 		this.mChildScene = pChildScene;
 		this.mChildSceneModalDraw = pModalDraw;
@@ -173,14 +176,22 @@ public class Scene extends Entity {
 	}
 
 	/**
-	 * Enable or disable the binding of TouchAreas to PointerIDs (fingers).
-	 * When enabled: TouchAreas get bound to a PointerID (finger) when returning true in
-	 * {@link IShape#onAreaTouched(TouchEvent, float, float)} or
+	 * Enable or disable the binding of TouchAreas to PointerIDs (fingers). When
+	 * enabled: TouchAreas get bound to a PointerID (finger) when returning true
+	 * in {@link IShape#onAreaTouched(TouchEvent, float, float)} or
 	 * {@link IOnAreaTouchListener#onAreaTouched(TouchEvent, ITouchArea, float, float)}
+<<<<<<< HEAD
 	 * with {@link TouchEvent#ACTION_DOWN}, they will receive all subsequent {@link TouchEvent}s
 	 * that are made with the same PointerID (finger)
 	 * <b>even if the {@link TouchEvent} is outside of the actual {@link ITouchArea}</b>!
 	 *
+=======
+	 * with {@link TouchEvent#ACTION_DOWN}, they will receive all subsequent
+	 * {@link TouchEvent}s that are made with the same PointerID (finger)
+	 * <b>even if the {@link TouchEvent} is outside of the actual
+	 * {@link ITouchArea}</b>!
+	 * 
+>>>>>>> Can now block touch areas from being touch, useful for dragging bounding boxes.
 	 * @param pTouchAreaBindingOnActionDownEnabled
 	 */
 	public void setTouchAreaBindingOnActionDownEnabled(final boolean pTouchAreaBindingOnActionDownEnabled) {
@@ -191,14 +202,22 @@ public class Scene extends Entity {
 	}
 
 	/**
-	 * Enable or disable the binding of TouchAreas to PointerIDs (fingers).
-	 * When enabled: TouchAreas get bound to a PointerID (finger) when returning true in
-	 * {@link IShape#onAreaTouched(TouchEvent, float, float)} or
+	 * Enable or disable the binding of TouchAreas to PointerIDs (fingers). When
+	 * enabled: TouchAreas get bound to a PointerID (finger) when returning true
+	 * in {@link IShape#onAreaTouched(TouchEvent, float, float)} or
 	 * {@link IOnAreaTouchListener#onAreaTouched(TouchEvent, ITouchArea, float, float)}
+<<<<<<< HEAD
 	 * with {@link TouchEvent#ACTION_MOVE}, they will receive all subsequent {@link TouchEvent}s
 	 * that are made with the same PointerID (finger)
 	 * <b>even if the {@link TouchEvent} is outside of the actual {@link ITouchArea}</b>!
 	 *
+=======
+	 * with {@link TouchEvent#ACTION_MOVE}, they will receive all subsequent
+	 * {@link TouchEvent}s that are made with the same PointerID (finger)
+	 * <b>even if the {@link TouchEvent} is outside of the actual
+	 * {@link ITouchArea}</b>!
+	 * 
+>>>>>>> Can now block touch areas from being touch, useful for dragging bounding boxes.
 	 * @param pTouchAreaBindingOnActionMoveEnabled
 	 */
 	public void setTouchAreaBindingOnActionMoveEnabled(final boolean pTouchAreaBindingOnActionMoveEnabled) {
@@ -213,17 +232,20 @@ public class Scene extends Entity {
 	}
 
 	/**
-	 * Enable or disable the binding of TouchAreas to PointerIDs (fingers).
-	 * When enabled: The OnSceneTouchListener gets bound to a PointerID (finger) when returning true in
-	 * {@link Shape#onAreaTouched(TouchEvent, float, float)} or
+	 * Enable or disable the binding of TouchAreas to PointerIDs (fingers). When
+	 * enabled: The OnSceneTouchListener gets bound to a PointerID (finger) when
+	 * returning true in {@link Shape#onAreaTouched(TouchEvent, float, float)}
+	 * or
 	 * {@link IOnAreaTouchListener#onAreaTouched(TouchEvent, ITouchArea, float, float)}
-	 * with {@link TouchEvent#ACTION_DOWN}, it will receive all subsequent {@link TouchEvent}s
-	 * that are made with the same PointerID (finger)
-	 * <b>even if the {@link TouchEvent} is would belong to an overlaying {@link ITouchArea}</b>!
-	 *
+	 * with {@link TouchEvent#ACTION_DOWN}, it will receive all subsequent
+	 * {@link TouchEvent}s that are made with the same PointerID (finger)
+	 * <b>even if the {@link TouchEvent} is would belong to an overlaying
+	 * {@link ITouchArea}</b>!
+	 * 
 	 * @param pOnSceneTouchListenerBindingOnActionDownEnabled
 	 */
-	public void setOnSceneTouchListenerBindingOnActionDownEnabled(final boolean pOnSceneTouchListenerBindingOnActionDownEnabled) {
+	public void setOnSceneTouchListenerBindingOnActionDownEnabled(
+			final boolean pOnSceneTouchListenerBindingOnActionDownEnabled) {
 		if (this.mOnSceneTouchListenerBindingOnActionDownEnabled && !pOnSceneTouchListenerBindingOnActionDownEnabled) {
 			this.mOnSceneTouchListenerBindings.clear();
 		}
@@ -346,36 +368,43 @@ public class Scene extends Entity {
 		final float sceneTouchEventY = pSceneTouchEvent.getY();
 
 		final SmartList<ITouchArea> touchAreas = this.mTouchAreas;
-		if (touchAreas != null) {
-			final int touchAreaCount = touchAreas.size();
-			if (touchAreaCount > 0) {
-				if (this.mOnAreaTouchTraversalBackToFront) { /* Back to Front. */
-					for (int i = 0; i < touchAreaCount; i++) {
-						final ITouchArea touchArea = touchAreas.get(i);
-						if (touchArea.contains(sceneTouchEventX, sceneTouchEventY)) {
-							final Boolean handled = this.onAreaTouchEvent(pSceneTouchEvent, sceneTouchEventX, sceneTouchEventY, touchArea);
-							if (handled != null && handled) {
-								/* If binding of ITouchAreas is enabled and this is an ACTION_DOWN event,
-								 *  bind this ITouchArea to the PointerID. */
-								if ((this.mTouchAreaBindingOnActionDownEnabled && isActionDown) || (this.mTouchAreaBindingOnActionMoveEnabled && isActionMove)) {
-									this.mTouchAreaBindings.put(pSceneTouchEvent.getPointerID(), touchArea);
+		if (!this.mBlockTouchAreas) {
+
+			if (touchAreas != null) {
+				final int touchAreaCount = touchAreas.size();
+				if (touchAreaCount > 0) {
+					if (this.mOnAreaTouchTraversalBackToFront) { /* Back to Front. */
+						for (int i = 0; i < touchAreaCount; i++) {
+							final ITouchArea touchArea = touchAreas.get(i);
+							if (touchArea.contains(sceneTouchEventX, sceneTouchEventY)) {
+								final Boolean handled = this.onAreaTouchEvent(pSceneTouchEvent, sceneTouchEventX,
+										sceneTouchEventY, touchArea);
+								if (handled != null && handled) {
+									/* If binding of ITouchAreas is enabled and this is an ACTION_DOWN event,
+									 *  bind this ITouchArea to the PointerID. */
+									if ((this.mTouchAreaBindingOnActionDownEnabled && isActionDown)
+											|| (this.mTouchAreaBindingOnActionMoveEnabled && isActionMove)) {
+										this.mTouchAreaBindings.put(pSceneTouchEvent.getPointerID(), touchArea);
+									}
+									return true;
 								}
-								return true;
 							}
 						}
-					}
-				} else { /* Front to back. */
-					for (int i = touchAreaCount - 1; i >= 0; i--) {
-						final ITouchArea touchArea = touchAreas.get(i);
-						if (touchArea.contains(sceneTouchEventX, sceneTouchEventY)) {
-							final Boolean handled = this.onAreaTouchEvent(pSceneTouchEvent, sceneTouchEventX, sceneTouchEventY, touchArea);
-							if (handled != null && handled) {
-								/* If binding of ITouchAreas is enabled and this is an ACTION_DOWN event,
-								 *  bind this ITouchArea to the PointerID. */
-								if ((this.mTouchAreaBindingOnActionDownEnabled && isActionDown) || (this.mTouchAreaBindingOnActionMoveEnabled && isActionMove)) {
-									this.mTouchAreaBindings.put(pSceneTouchEvent.getPointerID(), touchArea);
+					} else { /* Front to back. */
+						for (int i = touchAreaCount - 1; i >= 0; i--) {
+							final ITouchArea touchArea = touchAreas.get(i);
+							if (touchArea.contains(sceneTouchEventX, sceneTouchEventY)) {
+								final Boolean handled = this.onAreaTouchEvent(pSceneTouchEvent, sceneTouchEventX,
+										sceneTouchEventY, touchArea);
+								if (handled != null && handled) {
+									/* If binding of ITouchAreas is enabled and this is an ACTION_DOWN event,
+									 *  bind this ITouchArea to the PointerID. */
+									if ((this.mTouchAreaBindingOnActionDownEnabled && isActionDown)
+											|| (this.mTouchAreaBindingOnActionMoveEnabled && isActionMove)) {
+										this.mTouchAreaBindings.put(pSceneTouchEvent.getPointerID(), touchArea);
+									}
+									return true;
 								}
-								return true;
 							}
 						}
 					}
@@ -428,7 +457,7 @@ public class Scene extends Entity {
 
 	@Override
 	public void setParent(final IEntity pEntity) {
-//		super.setParent(pEntity);
+		// super.setParent(pEntity);
 	}
 
 	// ===========================================================
@@ -466,6 +495,17 @@ public class Scene extends Entity {
 			this.mParentScene.clearChildScene();
 			this.mParentScene = null;
 		}
+	}
+	
+	/**
+	 * Block touch areas from updating
+	 * 
+	 * @param pBlock
+	 *            <code>true</code> to block, <code>false</code> to allow them
+	 *            to receive notification of touch
+	 */
+	public void blockTouchareas(boolean pBlock) {
+		this.mBlockTouchAreas = pBlock;
 	}
 
 	// ===========================================================
