@@ -170,6 +170,10 @@ public class FixedStepMaxFPSEngine extends Engine {
 	public void clearConstantUpdateHandlers() {
 		this.mConstantUpdateHandlers.clear();
 	}
+	
+	public boolean isPaused(){
+		return this.mPaused;
+	}
 
 	// ===========================================================
 	// Methods
