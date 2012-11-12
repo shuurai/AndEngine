@@ -1,12 +1,15 @@
 package org.andengine.util.texturepack;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import android.util.SparseArray;
 
 /**
  * (c) Zynga 2011
- *
+ * 
  * @author Nicolas Gramlich <ngramlich@zynga.com>
  * @since 16:34:23 - 15.08.2011
  */
@@ -21,6 +24,15 @@ public class TexturePackTextureRegionLibrary {
 
 	private final SparseArray<TexturePackTextureRegion> mIDMapping;
 	private final HashMap<String, TexturePackTextureRegion> mSourceMapping;
+	/**
+	 * This will store an {@link TexturePackTextureRegion} ID mapped to its
+	 * {@link String} filename.<br>
+	 * <b>Key:</b> {@link String} <i> of source</i> <br>
+	 * <b>Value:</b> {@link Integer} <i> of source ID</i>
+	 * 
+	 * @author Paul Robinson
+	 */
+	private final HashMap<String, Integer> mIDToStringMap;
 
 	// ===========================================================
 	// Constructors
@@ -29,6 +41,7 @@ public class TexturePackTextureRegionLibrary {
 	public TexturePackTextureRegionLibrary(final int pInitialCapacity) {
 		this.mIDMapping = new SparseArray<TexturePackTextureRegion>(pInitialCapacity);
 		this.mSourceMapping = new HashMap<String, TexturePackTextureRegion>(pInitialCapacity);
+		this.mIDToStringMap = new HashMap<String, Integer>(pInitialCapacity);
 	}
 
 	// ===========================================================
@@ -56,6 +69,7 @@ public class TexturePackTextureRegionLibrary {
 
 		this.mIDMapping.put(pTexturePackTextureRegion.getID(), pTexturePackTextureRegion);
 		this.mSourceMapping.put(pTexturePackTextureRegion.getSource(), pTexturePackTextureRegion);
+		this.mIDToStringMap.put(pTexturePackTextureRegion.getSource(), pTexturePackTextureRegion.getID());
 	}
 
 	public void remove(final int pID) {
@@ -84,11 +98,45 @@ public class TexturePackTextureRegionLibrary {
 		}
 	}
 
-	private void throwOnCollision(final TexturePackTextureRegion pTexturePackTextureRegion) throws IllegalArgumentException {
+	/**
+	 * Get the source related to a given ID.
+	 * 
+	 * @param pID
+	 *            {@link Integer} of texture ID.
+	 * @return {@link String} of source related to texture ID>
+	 */
+	public String getStringSource(final int pID) {
+		if (this.mIDToStringMap.containsValue(pID)) {
+			Iterator<Entry<String, Integer>> entries = this.mIDToStringMap.entrySet().iterator();
+			while (entries.hasNext()) {
+				Map.Entry<String, Integer> entry = entries.next();
+				if (entry.getValue().equals(pID)) {
+					return entry.getKey();
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get the integer related to a given source.
+	 * 
+	 * @param pSource
+	 *            {@link String} of Source.
+	 * 
+	 * @return {@link Integer} mapped to source
+	 */
+	public int getIDSource(final String pSource) {
+		return this.mIDToStringMap.get(pSource);
+	}
+
+	private void throwOnCollision(final TexturePackTextureRegion pTexturePackTextureRegion)
+			throws IllegalArgumentException {
 		if (this.mIDMapping.get(pTexturePackTextureRegion.getID()) != null) {
 			throw new IllegalArgumentException("Collision with ID: '" + pTexturePackTextureRegion.getID() + "'.");
 		} else if (this.mSourceMapping.get(pTexturePackTextureRegion.getSource()) != null) {
-			throw new IllegalArgumentException("Collision with Source: '" + pTexturePackTextureRegion.getSource() + "'.");
+			throw new IllegalArgumentException("Collision with Source: '" + pTexturePackTextureRegion.getSource()
+					+ "'.");
 		}
 	}
 
