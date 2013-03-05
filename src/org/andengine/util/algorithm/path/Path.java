@@ -23,6 +23,7 @@ public class Path implements IPool {
 	private int[] mXs;
 	private int[] mYs;
 	private GenericPool<Path> mPool;
+	private boolean mSwitchXY = false;
 
 	// ===========================================================
 	// Constructors
@@ -73,6 +74,29 @@ public class Path implements IPool {
 		return this.mYs[pIndex];
 	}
 
+	/**
+	 * Should we switch the node X and Y round? <br>
+	 * useful if we're doing an isometric and need to calculate the correct
+	 * direction
+	 * 
+	 * @param pSwitch
+	 *            <code>true</code> to switch <code>false</code> to not switch
+	 */
+	public void switchXY(final boolean pSwitch) {
+		this.mSwitchXY = pSwitch;
+	}
+
+	/**
+	 * Are we switching X and Y around?
+	 * useful if we're doing an isometric and need to calculate the correct
+	 * direction
+	 * 
+	 * @return<code>true</code> to switch <code>false</code> to not switch
+	 */
+	public boolean isSwitchingXY() {
+		return this.mSwitchXY;
+	}
+
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
@@ -119,6 +143,9 @@ public class Path implements IPool {
 		} else {
 			final int dX = this.getX(pIndex - 1) - this.getX(pIndex);
 			final int dY = this.getY(pIndex - 1) - this.getY(pIndex);
+			if (this.mSwitchXY) {
+				return Direction.fromDelta(dY, dX);
+			}
 			return Direction.fromDelta(dX, dY);
 		}
 	}
@@ -129,6 +156,9 @@ public class Path implements IPool {
 		} else {
 			final int dX = this.getX(pIndex + 1) - this.getX(pIndex);
 			final int dY = this.getY(pIndex + 1) - this.getY(pIndex);
+			if (this.mSwitchXY) {
+				return Direction.fromDelta(dY, dX);
+			}
 			return Direction.fromDelta(dX, dY);
 		}
 	}

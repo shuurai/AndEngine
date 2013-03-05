@@ -839,6 +839,10 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 	 * @param pTimeModifier {@link Integer} of new time modifier
 	 */
 	public void setTimeModifer(final int pTimeModifier){
+		if (BuildConfig.DEBUG) {
+			Debug.d(this.getClass().getSimpleName() + ".setTimeModifer: "+ pTimeModifier +" " + " @(Thread: '" + Thread.currentThread().getName()
+					+ "')");
+		}
 		if(pTimeModifier < 1){
 			//Will not go below 1
 		}else{
@@ -860,6 +864,10 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 	 */
 	public void increaseTimeModifier(){
 		this.mTimeModifier++;
+		if (BuildConfig.DEBUG) {
+			Debug.d(this.getClass().getSimpleName() + ".decreaseTimeModifier: "+ this.mTimeModifier +" " + " @(Thread: '" + Thread.currentThread().getName()
+					+ "')");
+		}
 	}
 	/**
 	 * Decrease the time modifier by 1;
@@ -868,6 +876,10 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 		if(this.mTimeModifier > 1){
 			//Has to be above 1 to decrease,
 			this.mTimeModifier--;
+			if (BuildConfig.DEBUG) {
+				Debug.d(this.getClass().getSimpleName() + ".decreaseTimeModifier: "+ this.mTimeModifier +" " + " @(Thread: '" + Thread.currentThread().getName()
+						+ "')");
+			}
 		}
 	}
 	/**
