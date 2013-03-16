@@ -125,6 +125,18 @@ public class Entity implements IEntity {
 	protected boolean mIsRegisteredForTimeModifiedUpdate = false;
 	protected ITimeModifiedUpdater mTimeModifiedUpdater;
 
+	protected int m3DWidth = 0;
+	protected int m3DLength = 0;
+	protected int m3DHeight = 0;
+
+	protected float m3DX = 0;
+	protected float m3DY = 0;
+	protected float m3DZ = 0;
+	protected boolean mIsometric = false;
+	protected boolean mSkipSort = false;
+	protected boolean mIsometricRecalculateXYZ = false;
+	protected IIsometricEntity3DSpaceRecalculation mIsometricEntity3DSpaceRecalculation;
+
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -145,6 +157,94 @@ public class Entity implements IEntity {
 		this.mHeight = pHeight;
 
 		this.updateLocalCenters();
+	}
+
+	// ===========================================================
+	// IIsometricEntity
+	// ===========================================================
+
+	@Override
+	public void set3DPosition(final float p3DX, final float p3DY, final float p3DZ) {
+		this.m3DX = p3DX;
+		this.m3DY = p3DY;
+		this.m3DZ = p3DZ;
+	}
+
+	@Override
+	public void set3DSize(final int p3DWidth, final int p3DLength, final int p3DHeight) {
+		this.m3DWidth = p3DWidth;
+		this.m3DLength = p3DLength;
+		this.m3DHeight = p3DHeight;
+	}
+
+	@Override
+	public void setIsometricToSort(boolean pIsometrc) {
+		this.mIsometric = pIsometrc;
+	}
+
+	@Override
+	public boolean isIsometricSoSort() {
+		return this.mIsometric;
+	}
+
+	@Override
+	public int get3DWidth() {
+		return this.m3DWidth;
+	}
+
+	@Override
+	public int get3DLength() {
+		return this.m3DLength;
+	}
+
+	@Override
+	public int get3DHeight() {
+		return this.m3DHeight;
+	}
+
+	@Override
+	public float get3DX() {
+		return this.m3DX;
+	}
+
+	@Override
+	public float get3DY() {
+		return this.m3DY;
+	}
+
+	@Override
+	public float get3DZ() {
+		return this.m3DZ;
+	}
+
+	@Override
+	public void setSkipSort(boolean pSkip) {
+		this.mSkipSort = pSkip;
+	}
+
+	@Override
+	public boolean getSkipSort() {
+		return this.mSkipSort;
+	}
+
+	@Override
+	public void recalculate3DSpace(boolean pBoolean) {
+		this.mIsometricRecalculateXYZ = pBoolean;
+	}
+
+	@Override
+	public boolean doesRecalculate3DSpace() {
+		return this.mIsometricRecalculateXYZ;
+	}
+
+	@Override
+	public void setRecalculate3DSpaceXYZ(IIsometricEntity3DSpaceRecalculation pIsometricEntity3DSpaceRecalculation) {
+		this.mIsometricEntity3DSpaceRecalculation = pIsometricEntity3DSpaceRecalculation;
+	}
+
+	@Override
+	public IIsometricEntity3DSpaceRecalculation getRecalculate3DSpaceXYZ() {
+		return this.mIsometricEntity3DSpaceRecalculation;
 	}
 
 	// ===========================================================
@@ -287,6 +387,13 @@ public class Entity implements IEntity {
 		}
 	}
 
+	public void setZIndexWithoutSort(final int pZIndex) {
+		this.mZIndex = pZIndex;
+		if (this.mParent != null) {
+			this.mParent.sortChildren(false);
+		}
+	}
+
 	@Override
 	public float getX() {
 		return this.mX;
@@ -322,9 +429,31 @@ public class Entity implements IEntity {
 	public void setPosition(final float pX, final float pY) {
 		this.mX = pX;
 		this.mY = pY;
+		if (this.mIsometricRecalculateXYZ) {
+			if (this.mIsometricEntity3DSpaceRecalculation != null) {
+				this.mIsometricEntity3DSpaceRecalculation.recalculate(this, pX, pY);
+			}
+		}
 
 		this.mLocalToParentTransformationDirty = true;
 		this.mParentToLocalTransformationDirty = true;
+		if (this.mParent != null) {
+			this.mParent.sortChildren(true);
+		}
+	}
+	
+	@Override
+	public void setPosition(final float pX, final float pY, boolean pSort) {
+		this.mX = pX;
+		this.mY = pY;
+
+		this.mLocalToParentTransformationDirty = true;
+		this.mParentToLocalTransformationDirty = true;
+		if (pSort) {
+			if (this.mParent != null) {
+				this.mParent.sortChildren(true);
+			}
+		}
 	}
 
 	@Override
@@ -952,7 +1081,12 @@ public class Entity implements IEntity {
 			return;
 		}
 		if (pImmediate) {
-			ZIndexSorter.getInstance().sort(this.mChildren);
+			if (this.mIsometric) {
+				ZIsoIndexSorter.getInstance().sort(this.mChildren);
+			} else {
+				ZIndexSorter.getInstance().sort(this.mChildren);
+			}
+
 		} else {
 			this.mChildrenSortPending = true;
 		}
@@ -1595,7 +1729,11 @@ public class Entity implements IEntity {
 				this.postDraw(pGLState, pCamera);
 			} else {
 				if (this.mChildrenSortPending) {
-					ZIndexSorter.getInstance().sort(this.mChildren);
+					if (this.mIsometric = true) {
+						ZIsoIndexSorter.getInstance().sort(this.mChildren);
+					} else {
+						ZIndexSorter.getInstance().sort(this.mChildren);
+					}
 					this.mChildrenSortPending = false;
 				}
 

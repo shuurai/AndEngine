@@ -10,6 +10,7 @@ import org.andengine.entity.IEntity;
 import org.andengine.entity.IEntityComparator;
 import org.andengine.entity.IEntityMatcher;
 import org.andengine.entity.IEntityParameterCallable;
+import org.andengine.entity.IIsometricEntity3DSpaceRecalculation;
 import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierMatcher;
 import org.andengine.entity.scene.menu.item.IMenuItem;
@@ -108,6 +109,12 @@ public abstract class BaseMenuItemDecorator implements IMenuItem {
 	@Override
 	public void setY(final float pY) {
 		this.mMenuItem.setY(pY);
+	}
+	
+
+	@Override
+	public void setZIndexWithoutSort(int pZIndex) {
+		this.mMenuItem.setZIndexWithoutSort(pZIndex);
 	}
 
 	@Override
@@ -891,6 +898,97 @@ public abstract class BaseMenuItemDecorator implements IMenuItem {
 	public void setTimeModifedUpdater(ITimeModifiedUpdater pTimeModifiedUpdater) {
 		this.mTimeModifiedUpdater = pTimeModifiedUpdater;
 	}
+
+	@Override
+	public void set3DPosition(float p3dx, float p3dy, float p3dz) {
+		this.mMenuItem.set3DPosition(p3dx, p3dy, p3dz);
+	}
+
+	@Override
+	public void set3DSize(int p3dWidth, int p3dLength, int p3dHeight) {
+		this.mMenuItem.set3DSize(p3dWidth, p3dLength, p3dHeight);
+	}
+
+	@Override
+	public boolean isIsometricSoSort() {
+		return this.mMenuItem.isIsometricSoSort();
+	}
+
+	@Override
+	public int get3DWidth() {
+		return this.mMenuItem.get3DWidth();
+	}
+
+	@Override
+	public int get3DLength() {
+		
+		return this.mMenuItem.get3DLength();
+	}
+
+	@Override
+	public int get3DHeight() {
+		
+		return this.mMenuItem.get3DHeight();
+	}
+
+	@Override
+	public float get3DX() {
+		
+		return this.mMenuItem.get3DX();
+	}
+
+	@Override
+	public float get3DY() {
+		
+		return this.mMenuItem.get3DY();
+	}
+
+	@Override
+	public float get3DZ() {
+		
+		return this.mMenuItem.get3DZ();
+	}
+
+	@Override
+	public void setIsometricToSort(boolean pIsometrc) {
+		this.mMenuItem.setIsometricToSort(pIsometrc);
+	}
+
+	@Override
+	public void setSkipSort(boolean pSkip) {
+		this.mMenuItem.setSkipSort(pSkip);
+	}
+
+	@Override
+	public boolean getSkipSort() {
+		return this.mMenuItem.getSkipSort();
+	}
+
+	@Override
+	public void recalculate3DSpace(boolean pBoolean) {
+		this.mMenuItem.recalculate3DSpace(pBoolean);
+	}
+
+	@Override
+	public boolean doesRecalculate3DSpace() {
+		return this.mMenuItem.doesRecalculate3DSpace();
+	}
+
+	@Override
+	public void setRecalculate3DSpaceXYZ(IIsometricEntity3DSpaceRecalculation pIsometricEntity3DSpaceRecalculation) {
+		this.mMenuItem.setRecalculate3DSpaceXYZ(pIsometricEntity3DSpaceRecalculation);
+	}
+
+	@Override
+	public IIsometricEntity3DSpaceRecalculation getRecalculate3DSpaceXYZ() {
+		return this.mMenuItem.getRecalculate3DSpaceXYZ();
+	}
+
+	@Override
+	public void setPosition(float pX, float pY, boolean pSort) {
+		this.mMenuItem.setPosition(pX, pY, pSort);
+	}
+		
 	// ===========================================================
 	// Methods
 	// ===========================================================
