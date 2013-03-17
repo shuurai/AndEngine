@@ -160,13 +160,13 @@ public class ZIsoIndexSorter extends InsertionSorter<IEntity> {
 				}
 			}
 		}
-		/*
+		
 		//Do we need this?
 		if(this.mDepth != pEntity.getZIndex()){
 			pEntity.setZIndexWithoutSort(this.mDepth);
 		}
-		*/
-		pEntity.setZIndexWithoutSort(this.mDepth);
+		
+		//pEntity.setZIndexWithoutSort(this.mDepth);
 
 		this.mDepth++;
 	}
