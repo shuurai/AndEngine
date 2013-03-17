@@ -1,5 +1,12 @@
 # AndEngine
 
+
+##Notes on Isometric support
+The isometric depth sorting has been taken from AS3IsoLib [`as3isolib`][URI_AS3ISOLIB]. I highly recommend you go and view the site, you could end up using that for you game instead, its got tons of support and is used by many companys.
+
+If you want to understand how to use isometric support, [`visit here`][URI_ISOMETRICWORLDEXAMPLE]
+
+
 ## Building
 
 ### Eclipse
@@ -67,3 +74,5 @@ public final class BuildConfig {
 [URI_AndEngineSVGTextureRegionExtension]: https://github.com/nicolasgramlich/AndEngineSVGTextureRegionExtension
 [URI_AndEngineTexturePackerExtension]: https://github.com/nicolasgramlich/AndEngineTexturePackerExtension
 [URI_AndEngineTMXTiledMapExtension]: https://github.com/nicolasgramlich/AndEngineTMXTiledMapExtension
+[URI_AS3ISOLIB]: http://code.google.com/p/as3isolib/
+[URI_ISOMETRICWORLDEXAMPLE]: https://github.com/Niffy/IsometricWorldExample
