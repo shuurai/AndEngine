@@ -28,7 +28,7 @@ import android.os.Build;
  * @author Nicolas Gramlich
  * @since 16:54:01 - 20.03.2011
  */
-public final class WifiUtils {
+public final class WiFiUtils {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -45,7 +45,7 @@ public final class WifiUtils {
 	// Constructors
 	// ===========================================================
 
-	private WifiUtils() {
+	private WiFiUtils() {
 
 	}
 
@@ -66,27 +66,27 @@ public final class WifiUtils {
 	}
 
 	public static boolean isWifiEnabled(final Context pContext) {
-		return WifiUtils.getWifiManager(pContext).isWifiEnabled();
+		return WiFiUtils.getWifiManager(pContext).isWifiEnabled();
 	}
 
 	private static void setWifiEnabled(final Context pContext, final boolean pEnabled) {
-		WifiUtils.getWifiManager(pContext).setWifiEnabled(pEnabled);
+		WiFiUtils.getWifiManager(pContext).setWifiEnabled(pEnabled);
 	}
 
 	public static String getWifiSSID(final Context pContext) {
-		return WifiUtils.getWifiManager(pContext).getConnectionInfo().getSSID();
+		return WiFiUtils.getWifiManager(pContext).getConnectionInfo().getSSID();
 	}
 
 	public static byte[] getWifiIPv4AddressRaw(final Context pContext) {
-		return IPUtils.ipv4AddressToIPAddress(WifiUtils.getWifiManager(pContext).getConnectionInfo().getIpAddress());
+		return IPUtils.ipv4AddressToIPAddress(WiFiUtils.getWifiManager(pContext).getConnectionInfo().getIpAddress());
 	}
 
 	public static String getWifiIPv4Address(final Context pContext) throws UnknownHostException {
-		return IPUtils.ipAddressToString(WifiUtils.getWifiIPv4AddressRaw(pContext));
+		return IPUtils.ipAddressToString(WiFiUtils.getWifiIPv4AddressRaw(pContext));
 	}
 
 	public static boolean isWifiIPAddressValid(final Context pContext) {
-		return WifiUtils.getWifiManager(pContext).getConnectionInfo().getIpAddress() != 0;
+		return WiFiUtils.getWifiManager(pContext).getConnectionInfo().getIpAddress() != 0;
 	}
 
 
@@ -97,7 +97,7 @@ public final class WifiUtils {
 		if (SystemUtils.isAndroidVersionOrLower(Build.VERSION_CODES.ECLAIR_MR1)) {
 			return false;
 		} else {
-			final WifiManager wifiManager = WifiUtils.getWifiManager(pContext);
+			final WifiManager wifiManager = WiFiUtils.getWifiManager(pContext);
 			for (Method m : wifiManager.getClass().getMethods()) {
 				Debug.d("WifiManager." + m.getName());
 			}
@@ -112,7 +112,7 @@ public final class WifiUtils {
 	}
 
 	public static boolean isWifiHotspotEnabled(final Context pContext) throws WifiUtilsException {
-		final WifiManager wifiManager = WifiUtils.getWifiManager(pContext);
+		final WifiManager wifiManager = WiFiUtils.getWifiManager(pContext);
 
 		try {
 			final Method WifiManager_isWifiApEnabled = wifiManager.getClass().getMethod("isWifiApEnabled");
@@ -129,22 +129,22 @@ public final class WifiUtils {
 
 	public static boolean isWifiHotspotEnabled(final Context pContext, final boolean pDefault) {
 		try {
-			return WifiUtils.isWifiHotspotEnabled(pContext);
+			return WiFiUtils.isWifiHotspotEnabled(pContext);
 		} catch (final WifiUtilsException e) {
 			return pDefault;
 		}
 	}
 
 	public static boolean setWifiHostpotEnabled(final Context pContext, final boolean pEnabled) throws WifiUtilsException {
-		return WifiUtils.setWifiHostpotEnabled(pContext, null, pEnabled);
+		return WiFiUtils.setWifiHostpotEnabled(pContext, null, pEnabled);
 	}
 
 	public static boolean setWifiHostpotEnabled(final Context pContext, final WifiConfiguration pWifiConfiguration, final boolean pEnabled) throws WifiUtilsException {
-		final WifiManager wifiManager = WifiUtils.getWifiManager(pContext);
+		final WifiManager wifiManager = WiFiUtils.getWifiManager(pContext);
 
 		try {
 			if (pEnabled) {
-				WifiUtils.setWifiEnabled(pContext, false);
+				WiFiUtils.setWifiEnabled(pContext, false);
 			}
 
 			final Method WifiManager_setWifiApEnabled = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
@@ -160,7 +160,7 @@ public final class WifiUtils {
 	}
 
 	public static WifiHotspotState getWifiHotspotState(final Context pContext) throws WifiUtilsException {
-		final WifiManager wifiManager = WifiUtils.getWifiManager(pContext);
+		final WifiManager wifiManager = WiFiUtils.getWifiManager(pContext);
 
 		try {
 			final Method WifiManager_getWifiApState = wifiManager.getClass().getMethod("getWifiApState");
@@ -183,7 +183,7 @@ public final class WifiUtils {
 				final NetworkInterface networkInterface = networkInterfaceEnumeration.nextElement();
 				final String networkInterfaceName = networkInterface.getName();
 
-				if (ArrayUtils.contains(WifiUtils.HOTSPOT_NETWORKINTERFACE_NAMES, networkInterfaceName)) {
+				if (ArrayUtils.contains(WiFiUtils.HOTSPOT_NETWORKINTERFACE_NAMES, networkInterfaceName)) {
 					return true;
 				}
 			}
@@ -204,7 +204,7 @@ public final class WifiUtils {
 				final NetworkInterface networkInterface = networkInterfaceEnumeration.nextElement();
 				final String networkInterfaceName = networkInterface.getName();
 
-				if (ArrayUtils.contains(WifiUtils.HOTSPOT_NETWORKINTERFACE_NAMES, networkInterfaceName)) {
+				if (ArrayUtils.contains(WiFiUtils.HOTSPOT_NETWORKINTERFACE_NAMES, networkInterfaceName)) {
 					byte[] ipv6Address = null;
 					final Enumeration<InetAddress> inetAddressEnumeration = networkInterface.getInetAddresses();
 					while (inetAddressEnumeration.hasMoreElements()) {
@@ -218,11 +218,11 @@ public final class WifiUtils {
 					if (ipv6Address != null) {
 						return ipv6Address;
 					} else {
-						throw new WifiException("No IP bound to '" + Arrays.toString(WifiUtils.HOTSPOT_NETWORKINTERFACE_NAMES) + "'!");
+						throw new WifiException("No IP bound to '" + Arrays.toString(WiFiUtils.HOTSPOT_NETWORKINTERFACE_NAMES) + "'!");
 					}
 				}
 			}
-			throw new WifiException("No NetworInterface '" + Arrays.toString(WifiUtils.HOTSPOT_NETWORKINTERFACE_NAMES) + "' found!");
+			throw new WifiException("No NetworInterface '" + Arrays.toString(WiFiUtils.HOTSPOT_NETWORKINTERFACE_NAMES) + "' found!");
 		} catch (final SocketException e) {
 			throw new WifiException("Unexpected error!", e);
 		}
@@ -230,19 +230,19 @@ public final class WifiUtils {
 
 	public static String getWifiHotspotIPAddress() throws WifiException {
 		try {
-			return IPUtils.ipAddressToString(WifiUtils.getWifiHotspotIPAddressRaw());
+			return IPUtils.ipAddressToString(WiFiUtils.getWifiHotspotIPAddressRaw());
 		} catch (final UnknownHostException e) {
 			throw new WifiException("Unexpected error!", e);
 		}
 	}
 
 	public static boolean isWifiHotspotIPAddressValid() throws WifiException { // TODO!
-		return !WifiUtils.IP_DEFAULT.equals(WifiUtils.getWifiHotspotIPAddress());
+		return !WiFiUtils.IP_DEFAULT.equals(WiFiUtils.getWifiHotspotIPAddress());
 	}
 
 
 	public static boolean isMulticastEnabled(final Context pContext) throws WifiUtilsException {
-		final WifiManager wifiManager = WifiUtils.getWifiManager(pContext);
+		final WifiManager wifiManager = WiFiUtils.getWifiManager(pContext);
 
 		try {
 			final Method WifiManager_isMulticastEnabled = wifiManager.getClass().getMethod("isMulticastEnabled");
@@ -259,18 +259,18 @@ public final class WifiUtils {
 
 	public static boolean isMulticastEnabled(final Context pContext, final boolean pDefault) {
 		try {
-			return WifiUtils.isMulticastEnabled(pContext);
+			return WiFiUtils.isMulticastEnabled(pContext);
 		} catch (final WifiUtilsException e) {
 			return pDefault;
 		}
 	}
 
 	public static MulticastLock aquireMulticastLock(final Context pContext) {
-		return WifiUtils.aquireMulticastLock(pContext, WifiUtils.MULTICASTLOCK_NAME_DEFAULT);
+		return WiFiUtils.aquireMulticastLock(pContext, WiFiUtils.MULTICASTLOCK_NAME_DEFAULT);
 	}
 
 	public static MulticastLock aquireMulticastLock(final Context pContext, final String pMulticastLockName) {
-		final WifiManager wifiManager = WifiUtils.getWifiManager(pContext);
+		final WifiManager wifiManager = WiFiUtils.getWifiManager(pContext);
 		final MulticastLock multicastLock = wifiManager.createMulticastLock(pMulticastLockName);
 		multicastLock.setReferenceCounted(true);
 		multicastLock.acquire();
@@ -285,7 +285,7 @@ public final class WifiUtils {
 
 
 	public static byte[] getBroadcastIPAddressRaw(final Context pContext) throws WifiException {
-		final WifiManager wifiManager = WifiUtils.getWifiManager(pContext);
+		final WifiManager wifiManager = WiFiUtils.getWifiManager(pContext);
 		final DhcpInfo dhcp = wifiManager.getDhcpInfo();
 		// TODO handle null somehow...
 
