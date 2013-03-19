@@ -127,4 +127,10 @@ public class ExtrudingBitmapTextureAtlasSource extends BaseTextureAtlasSource im
 		LEFT,
 		RIGHT
 	}
+
+	@Override
+	public Bitmap onLoadBitmap(Config pBitmapConfig, boolean pMutable) {
+		
+		return null;
+	}
 }

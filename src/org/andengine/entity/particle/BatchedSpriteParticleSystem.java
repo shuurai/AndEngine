@@ -9,7 +9,7 @@ import org.andengine.entity.sprite.batch.SpriteBatch;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.util.GLState;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.color.ColorUtils;
+import org.andengine.util.adt.color.ColorUtils;
 
 /**
  * (c) Zynga 2012
@@ -68,7 +68,6 @@ public class BatchedSpriteParticleSystem extends BlendFunctionParticleSystem<Unc
 			 * we have to 'premultiply' the RGB channels of the sprite with its alpha channel. */
 			final float alpha = sprite.getAlpha();
 			final float colorABGRPackedInt = ColorUtils.convertRGBAToABGRPackedFloat(sprite.getRed() * alpha, sprite.getGreen() * alpha, sprite.getBlue() * alpha, alpha);
-
 			this.mSpriteBatch.drawWithoutChecks(sprite, colorABGRPackedInt);
 		}
 		this.mSpriteBatch.submit();

@@ -313,7 +313,7 @@ public class BaseGameFragment extends FragmentActivity implements IGameInterface
 	}
 
 	@Override
-	public void onDestroyResources() throws Exception {
+	public void onDestroyResources() {
 		if(BuildConfig.DEBUG) {
 			Debug.d(this.getClass().getSimpleName() + ".onDestroyResources" + " @(Thread: '" + Thread.currentThread().getName() + "')");
 		}
@@ -554,20 +554,18 @@ public class BaseGameFragment extends FragmentActivity implements IGameInterface
 
 	@Override
 	public void onCreateResources(
-			OnCreateResourcesCallback pOnCreateResourcesCallback)
-					throws Exception {
+			OnCreateResourcesCallback pOnCreateResourcesCallback) {
 	}
 
 
 	@Override
-	public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback)
-			throws Exception {
+	public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) {
 	}
 
 
 	@Override
 	public void onPopulateScene(Scene pScene,
-			OnPopulateSceneCallback pOnPopulateSceneCallback) throws Exception {
+			OnPopulateSceneCallback pOnPopulateSceneCallback) {
 	}
 
 
