@@ -7,7 +7,8 @@ import java.util.Scanner;
 import java.util.regex.MatchResult;
 
 import org.andengine.util.StreamUtils;
-import org.andengine.util.adt.DataConstants;
+import org.andengine.util.adt.data.constants.DataConstants;
+import org.andengine.util.exception.AndEngineException;
 import org.andengine.util.exception.MethodNotFoundException;
 
 import android.content.Context;
@@ -25,7 +26,7 @@ import android.os.Debug.MemoryInfo;
  * @author Nicolas Gramlich
  * @since 15:50:31 - 14.07.2010
  */
-public class SystemUtils {
+public final class SystemUtils {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -49,6 +50,10 @@ public class SystemUtils {
 	// ===========================================================
 	// Constructors
 	// ===========================================================
+
+	private SystemUtils() {
+
+	}
 
 	// ===========================================================
 	// Getter & Setter
@@ -256,7 +261,7 @@ public class SystemUtils {
 	private static MatchResult matchSystemFile(final String pSystemFile, final String pPattern, final int pHorizon) throws SystemUtilsException {
 		InputStream in = null;
 		try {
-			final Process process = new ProcessBuilder(new String[] { "/system/bin/cat", pSystemFile }).start();
+			final Process process = new ProcessBuilder(new String[] {"/system/bin/cat", pSystemFile}).start();
 
 			in = process.getInputStream();
 			final Scanner scanner = new Scanner(in);
@@ -277,7 +282,7 @@ public class SystemUtils {
 	private static long readSystemFileAsLong(final String pSystemFile) throws SystemUtilsException {
 		InputStream in = null;
 		try {
-			final Process process = new ProcessBuilder(new String[] { "/system/bin/cat", pSystemFile }).start();
+			final Process process = new ProcessBuilder(new String[] {"/system/bin/cat", pSystemFile}).start();
 
 			in = process.getInputStream();
 			final String content = StreamUtils.readFully(in);
@@ -355,7 +360,7 @@ public class SystemUtils {
 	// Inner and Anonymous Classes
 	// ===========================================================
 
-	public static class SystemUtilsException extends Exception {
+	public static class SystemUtilsException extends AndEngineException {
 		// ===========================================================
 		// Constants
 		// ===========================================================
@@ -363,7 +368,7 @@ public class SystemUtils {
 		private static final long serialVersionUID = -7256483361095147596L;
 
 		// ===========================================================
-		// Methods
+		// Constructors
 		// ===========================================================
 
 		public SystemUtilsException() {
