@@ -1,4 +1,4 @@
-package org.andengine.util.algorithm.path.astar.tile;
+package org.andengine.util.algorithm.path.astar.isometric;
 
 /**
  * This is to be use between {@link AStarPathTileModifier} and {@link AStarPathTileSequenceListener} <br>

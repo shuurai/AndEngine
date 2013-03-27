@@ -1,4 +1,4 @@
-package org.andengine.util.algorithm.path.astar.tile;
+package org.andengine.util.algorithm.path.astar.isometric;
 
 import org.andengine.util.algorithm.path.IPathFinder;
 import org.andengine.util.algorithm.path.Path;

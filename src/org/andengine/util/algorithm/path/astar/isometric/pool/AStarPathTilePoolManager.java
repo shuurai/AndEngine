@@ -1,7 +1,7 @@
-package org.andengine.util.algorithm.path.astar.tile.pool;
+package org.andengine.util.algorithm.path.astar.isometric.pool;
 
 import org.andengine.util.algorithm.path.Path;
-import org.andengine.util.algorithm.path.astar.tile.Node;
+import org.andengine.util.algorithm.path.astar.isometric.Node;
 
 /**
  * Use this manager to obtain an item from its respective pool. <br>

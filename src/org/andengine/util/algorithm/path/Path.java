@@ -2,7 +2,7 @@ package org.andengine.util.algorithm.path;
 
 import org.andengine.util.adt.pool.GenericPool;
 import org.andengine.util.adt.spatial.Direction;
-import org.andengine.util.algorithm.path.astar.tile.pool.IPool;
+import org.andengine.util.algorithm.path.astar.isometric.pool.IPool;
 
 /**
  * (c) 2010 Nicolas Gramlich
@@ -23,7 +23,7 @@ public class Path implements IPool {
 	private int[] mXs;
 	private int[] mYs;
 	private GenericPool<Path> mPool;
-	private boolean mSwitchXY = false;
+	private boolean mIsIsometric = false;
 
 	// ===========================================================
 	// Constructors
@@ -75,28 +75,24 @@ public class Path implements IPool {
 	}
 
 	/**
-	 * Should we switch the node X and Y round? <br>
-	 * useful if we're doing an isometric and need to calculate the correct
-	 * direction
+	 * Is the path for an isometric map?
 	 * 
-	 * @param pSwitch
-	 *            <code>true</code> to switch <code>false</code> to not switch
+	 * @param pIsIsometric
+	 *            <code>true</code> it is an isometric map <code>false</code> its not.
 	 */
-	public void switchXY(final boolean pSwitch) {
-		this.mSwitchXY = pSwitch;
+	public void setIsIsometric(final boolean pIsIsometric) {
+		this.mIsIsometric = pIsIsometric;
 	}
 
 	/**
-	 * Are we switching X and Y around?
-	 * useful if we're doing an isometric and need to calculate the correct
-	 * direction
+	 * Is the path for an isometric map?
 	 * 
-	 * @return<code>true</code> to switch <code>false</code> to not switch
+	 * @return<code>true</code> it is an isometric map <code>false</code> its not.
 	 */
-	public boolean isSwitchingXY() {
-		return this.mSwitchXY;
+	public boolean isIsometric() {
+		return this.mIsIsometric;
 	}
-
+	
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
@@ -143,8 +139,8 @@ public class Path implements IPool {
 		} else {
 			final int dX = this.getX(pIndex - 1) - this.getX(pIndex);
 			final int dY = this.getY(pIndex - 1) - this.getY(pIndex);
-			if (this.mSwitchXY) {
-				return Direction.fromDelta(dY, dX);
+			if (this.mIsIsometric) {
+				return Direction.fromDeltaIsometric(dY, dX);
 			}
 			return Direction.fromDelta(dX, dY);
 		}
@@ -156,8 +152,8 @@ public class Path implements IPool {
 		} else {
 			final int dX = this.getX(pIndex + 1) - this.getX(pIndex);
 			final int dY = this.getY(pIndex + 1) - this.getY(pIndex);
-			if (this.mSwitchXY) {
-				return Direction.fromDelta(dY, dX);
+			if (this.mIsIsometric) {
+				return Direction.fromDeltaIsometric(dY, dX);
 			}
 			return Direction.fromDelta(dX, dY);
 		}

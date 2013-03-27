@@ -1,7 +1,7 @@
-package org.andengine.util.algorithm.path.astar.tile;
+package org.andengine.util.algorithm.path.astar.isometric;
 
 import org.andengine.util.adt.pool.GenericPool;
-import org.andengine.util.algorithm.path.astar.tile.pool.IPool;
+import org.andengine.util.algorithm.path.astar.isometric.pool.IPool;
 
 public class Node implements Comparable<Node>, IPool {
 	// ===========================================================

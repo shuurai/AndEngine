@@ -1,4 +1,4 @@
-package org.andengine.util.algorithm.path.astar.tile;
+package org.andengine.util.algorithm.path.astar.isometric;
 
 import org.andengine.util.adt.list.ShiftList;
 import org.andengine.util.adt.map.LongSparseArray;
@@ -6,7 +6,7 @@ import org.andengine.util.adt.queue.IQueue;
 import org.andengine.util.adt.queue.SortedQueue;
 import org.andengine.util.algorithm.path.Path;
 import org.andengine.util.algorithm.path.astar.AStarPathFinder;
-import org.andengine.util.algorithm.path.astar.tile.pool.AStarPathTilePoolManager;
+import org.andengine.util.algorithm.path.astar.isometric.pool.AStarPathTilePoolManager;
 
 /**
  * Derived from {@link AStarPathFinder}
@@ -170,12 +170,6 @@ public class AStarPathFinderTileBased<T> implements ITilePathFinder<T> {
 		}
 
 		/* Cleanup. */
-		// TODO We could just let the GC do its work.
-		/*
-		visitedNodes.clear();
-		openNodes.clear();
-		sortedOpenNodes.clear();
-		*/
 
 		/* Check if a path was found. */
 		if (currentNode.mID != toNodeID) {

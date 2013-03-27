@@ -4,6 +4,8 @@ package org.andengine.util.adt.spatial;
  * (c) 2010 Nicolas Gramlich
  * (c) 2011 Zynga Inc.
  *
+ * Isometric direction now supported. Except rotation and opposite methods.
+ *
  * @author Nicolas Gramlich
  * @since 15:19:11 - 17.08.2010
  */
@@ -19,7 +21,15 @@ public enum Direction {
 	UP_LEFT(-1, 1),
 	UP_RIGHT(1, 1),
 	DOWN_LEFT(-1, -1),
-	DOWN_RIGHT(1, -1);
+	DOWN_RIGHT(1, -1),
+	ISO_UP(-1, -1),
+	ISO_DOWN(1, 1),
+	ISO_LEFT(-1, 1),
+	ISO_RIGHT(1, -1),
+	ISO_UP_LEFT(-1, 0),
+	ISO_UP_RIGHT(0, -1),
+	ISO_DOWN_LEFT(0, 1),
+	ISO_DOWN_RIGHT(1, 0);
 
 	// ===========================================================
 	// Constants
@@ -75,6 +85,39 @@ public enum Direction {
 		throw new IllegalArgumentException("Unexpected deltaX: '" + pDeltaX + "' deltaY: '" + pDeltaY + "'.");
 	}
 
+	public static Direction fromDeltaIsometric(final int pDeltaX, final int pDeltaY) {
+		switch (pDeltaX) {
+			case -1:
+				switch (pDeltaY) {
+					case 1:
+						return ISO_LEFT;
+					case 0:
+						return ISO_UP_LEFT;
+					case -1:
+						return ISO_UP;
+				}
+				break;
+			case 0:
+				switch (pDeltaY) {
+					case 1:
+						return ISO_DOWN_LEFT;
+					case -1:
+						return ISO_UP_RIGHT;
+				}
+				break;
+			case 1:
+				switch (pDeltaY) {
+					case 1:
+						return ISO_DOWN;
+					case 0:
+						return ISO_DOWN_RIGHT;
+					case -1:
+						return ISO_RIGHT;
+				}
+				break;
+		}
+		throw new IllegalArgumentException("Unexpected Isometric deltaX: '" + pDeltaX + "' deltaY: '" + pDeltaY + "'.");
+	}
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================

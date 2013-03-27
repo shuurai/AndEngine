@@ -1,12 +1,11 @@
-package org.andengine.util.algorithm.path.astar.tile.mod;
+package org.andengine.util.algorithm.path.astar.isometric;
 
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.EntityModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.modifier.MoveModifier;
 import org.andengine.util.algorithm.path.Path;
-import org.andengine.util.algorithm.path.astar.tile.AStarPathTileModifier;
-import org.andengine.util.algorithm.path.astar.tile.mod.AStarPathTileModifierSimple.IAStarPathTileModifierListener;
+import org.andengine.util.algorithm.path.astar.isometric.AStarPathTileModifier.IAStarPathTileModifierListener;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.IModifier.IModifierListener;
 import org.andengine.util.modifier.SequenceModifier;
@@ -17,7 +16,7 @@ import org.andengine.util.modifier.SequenceModifier.ISubSequenceModifierListener
  * @author Paul Robinson
  * @since 7 Oct 2012 18:32:15
  */
-public class AStarPathTileSequenceListenerSimple {
+public class AStarPathTileSequenceListener {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -43,7 +42,6 @@ public class AStarPathTileSequenceListenerSimple {
 	private int mCurrentIndex = 0;
 	private int mPathSize = 0;
 	private Path mPath;
-	private boolean mIsometric = true;
 	private EntityModifier mParent;
 	private MoveModifier[] mMoveModifiers;
 	private SequenceModifier<IEntity> mSequenceModifier;
@@ -52,14 +50,12 @@ public class AStarPathTileSequenceListenerSimple {
 	// Constructors
 	// ===========================================================
 
-	public AStarPathTileSequenceListenerSimple(final IAStarPathTileModifierListener pPathModifierListener,
-			final MoveModifier[] pMoveModifiers, final Path pPath, final boolean pIsometric,
-			final EntityModifier pParent) {
+	public AStarPathTileSequenceListener(final IAStarPathTileModifierListener pPathModifierListener,
+			final MoveModifier[] pMoveModifiers, final Path pPath, final EntityModifier pParent) {
 		this.mPath = pPath;
 		if(this.mPath !=null){
 			this.mPathSize = this.mPath.getLength();
 		}
-		this.mIsometric = pIsometric;
 		this.mParent = pParent;
 		this.mMoveModifiers = pMoveModifiers;
 		this.mPathModifierListener = pPathModifierListener;
@@ -89,72 +85,41 @@ public class AStarPathTileSequenceListenerSimple {
 	// ===========================================================
 
 	private void animateWithPath(final IModifier<IEntity> pModifier, final IEntity pEntity, final int pIndex) {
-		if (pIndex < mPathSize) {
-			// We need to translate to isometric view, so move up = move
-			// NW = up right
+		if (pIndex < this.mPathSize) {
 			switch (mPath.getDirectionToNextStep(pIndex)) {
-			case UP:
-				if (mIsometric) {
-					if (mPathModifierListener != null) {
-						mPathModifierListener.onNextMoveUpRight(mParent, pEntity, pIndex);
-					}
-				} else {
-					if (mPathModifierListener != null) {
-						mPathModifierListener.onNextMoveUp(mParent, pEntity, pIndex);
-					}
+			case ISO_DOWN:
+				if (this.mPathModifierListener != null) {
+					this.mPathModifierListener.onNextMoveDown(mParent, pEntity, pIndex);
 				}
 				break;
-			case DOWN:
-				if (mIsometric) {
-					if (mPathModifierListener != null) {
-						mPathModifierListener.onNextMoveDownLeft(mParent, pEntity, pIndex);
-					}
-				} else {
-					if (mPathModifierListener != null) {
-						mPathModifierListener.onNextMoveDown(mParent, pEntity, pIndex);
-					}
+			case ISO_LEFT:
+				if (this.mPathModifierListener != null) {
+					this.mPathModifierListener.onNextMoveLeft(mParent, pEntity, pIndex);
 				}
 				break;
-			case LEFT:
-				if (mIsometric) {
-					if (mPathModifierListener != null) {
-						mPathModifierListener.onNextMoveUpLeft(mParent, pEntity, pIndex);
-					}
-				} else {
-					if (mPathModifierListener != null) {
-						mPathModifierListener.onNextMoveLeft(mParent, pEntity, pIndex);
-					}
+			case ISO_RIGHT:
+				if (this.mPathModifierListener != null) {
+					this.mPathModifierListener.onNextMoveRight(mParent, pEntity, pIndex);
 				}
 				break;
-			case RIGHT:
-				if (mIsometric) {
-					if (mPathModifierListener != null) {
-						mPathModifierListener.onNextMoveDownRight(mParent, pEntity, pIndex);
-					}
-				} else {
-					if (mPathModifierListener != null) {
-						mPathModifierListener.onNextMoveRight(mParent, pEntity, pIndex);
-					}
+			case ISO_UP_LEFT:
+				if (this.mPathModifierListener != null) {
+					this.mPathModifierListener.onNextMoveUpLeft(mParent, pEntity, pIndex);
 				}
 				break;
-			case UP_LEFT:
-				if (mPathModifierListener != null) {
-					mPathModifierListener.onNextMoveUpLeft(mParent, pEntity, pIndex);
+			case ISO_UP_RIGHT:
+				if (this.mPathModifierListener != null) {
+					this.mPathModifierListener.onNextMoveUpRight(mParent, pEntity, pIndex);
 				}
 				break;
-			case UP_RIGHT:
-				if (mPathModifierListener != null) {
-					mPathModifierListener.onNextMoveUpRight(mParent, pEntity, pIndex);
+			case ISO_DOWN_LEFT:
+				if (this.mPathModifierListener != null) {
+					this.mPathModifierListener.onNextMoveDownLeft(mParent, pEntity, pIndex);
 				}
 				break;
-			case DOWN_LEFT:
-				if (mPathModifierListener != null) {
-					mPathModifierListener.onNextMoveDownLeft(mParent, pEntity, pIndex);
-				}
-				break;
-			case DOWN_RIGHT:
-				if (mPathModifierListener != null) {
-					mPathModifierListener.onNextMoveDownRight(mParent, pEntity, pIndex);
+			case ISO_DOWN_RIGHT:
+				if (this.mPathModifierListener != null) {
+					this.mPathModifierListener.onNextMoveDownRight(mParent, pEntity, pIndex);
 				}
 				break;
 			default:

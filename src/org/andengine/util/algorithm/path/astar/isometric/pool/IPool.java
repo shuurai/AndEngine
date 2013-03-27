@@ -1,4 +1,4 @@
-package org.andengine.util.algorithm.path.astar.tile.pool;
+package org.andengine.util.algorithm.path.astar.isometric.pool;
 
 public interface IPool {
 	public void reset();

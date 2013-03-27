@@ -1,4 +1,4 @@
-package org.andengine.util.algorithm.path.astar.tile.pool;
+package org.andengine.util.algorithm.path.astar.isometric.pool;
 
 import org.andengine.util.adt.pool.GenericPool;
 import org.andengine.util.algorithm.path.Path;
