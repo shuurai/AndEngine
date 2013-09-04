@@ -1,49 +1,41 @@
-package org.andengine.util.experiment;
+package org.andengine.util.math.factorioal;
+
 
 /**
  * (c) 2013 Nicolas Gramlich
  *
  * @author Nicolas Gramlich
- * @since 01:22:34 - 22.03.2013
+ * @since 21:37:15 - 09.06.2013
  */
-public class Experiment<T> {
+public class IterativeFactorialProvider implements IFactorialProvider {
 	// ===========================================================
 	// Constants
 	// ===========================================================
+
+	private static IterativeFactorialProvider INSTANCE;
 
 	// ===========================================================
 	// Fields
 	// ===========================================================
 
-	private final String mName;
-	private final Class<T> mType;
-	private final T mValue;
-
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 
-	public Experiment(final String pName, final Class<T> pType, final T pValue) {
-		this.mName = pName;
-		this.mType = pType;
-		this.mValue = pValue;
+	private IterativeFactorialProvider() {
+
+	}
+
+	public static IterativeFactorialProvider getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new IterativeFactorialProvider();
+		}
+		return INSTANCE;
 	}
 
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-
-	public String getName() {
-		return this.mName;
-	}
-
-	public Class<T> getType() {
-		return this.mType;
-	}
-
-	public T getValue() {
-		return this.mValue;
-	}
 
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
@@ -52,6 +44,15 @@ public class Experiment<T> {
 	// ===========================================================
 	// Methods
 	// ===========================================================
+
+	@Override
+	public int factorial(final int n) {
+		int result = 1;
+		for (int i = 1; i <= n; i++) {
+			result *= i;
+		}
+		return result;
+	}
 
 	// ===========================================================
 	// Inner and Anonymous Classes

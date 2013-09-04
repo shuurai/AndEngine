@@ -1,15 +1,12 @@
-package org.andengine.util.experiment;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+package org.andengine.util.math.factorioal;
 
 /**
  * (c) 2013 Nicolas Gramlich
  *
  * @author Nicolas Gramlich
- * @since 08:22:34 - 22.03.2013
+ * @since 21:37:15 - 09.06.2013
  */
-public interface IExperimentFactory {
+public interface IFactorialProvider {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -18,7 +15,7 @@ public interface IExperimentFactory {
 	// Methods
 	// ===========================================================
 
-	public Experiment<?> parseExperiment(final JSONObject pExperimentJSONObject) throws JSONException;
+	public int factorial(final int n);
 
 	// ===========================================================
 	// Inner and Anonymous Classes

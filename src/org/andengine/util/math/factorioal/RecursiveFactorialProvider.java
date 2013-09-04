@@ -1,18 +1,18 @@
-package org.andengine.util.experiment.exception;
+package org.andengine.util.math.factorioal;
 
 
 /**
  * (c) 2013 Nicolas Gramlich
- * 
+ *
  * @author Nicolas Gramlich
- * @since 08:25:34 - 22.03.2013
+ * @since 21:37:15 - 09.06.2013
  */
-public class ExperimentNotFoundException extends ExperimentException {
+public class RecursiveFactorialProvider implements IFactorialProvider {
 	// ===========================================================
 	// Constants
 	// ===========================================================
 
-	private static final long serialVersionUID = 8872925957672647007L;
+	private static RecursiveFactorialProvider INSTANCE;
 
 	// ===========================================================
 	// Fields
@@ -22,20 +22,15 @@ public class ExperimentNotFoundException extends ExperimentException {
 	// Constructors
 	// ===========================================================
 
-	public ExperimentNotFoundException() {
-		super();
+	private RecursiveFactorialProvider() {
+
 	}
 
-	public ExperimentNotFoundException(final String pMessage) {
-		super(pMessage);
-	}
-
-	public ExperimentNotFoundException(final Throwable pThrowable) {
-		super(pThrowable);
-	}
-
-	public ExperimentNotFoundException(final String pMessage, final Throwable pThrowable) {
-		super(pMessage, pThrowable);
+	public static RecursiveFactorialProvider getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new RecursiveFactorialProvider();
+		}
+		return INSTANCE;
 	}
 
 	// ===========================================================
@@ -49,6 +44,15 @@ public class ExperimentNotFoundException extends ExperimentException {
 	// ===========================================================
 	// Methods
 	// ===========================================================
+
+	@Override
+	public int factorial(final int n) {
+		if (n == 0 || n == 1) {
+			return 1;
+		} else {
+			return n * this.factorial(n - 1);
+		}
+	}
 
 	// ===========================================================
 	// Inner and Anonymous Classes

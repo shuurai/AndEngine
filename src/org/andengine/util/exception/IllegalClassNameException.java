@@ -1,19 +1,19 @@
 package org.andengine.util.exception;
 
+import org.andengine.util.exception.AndEngineRuntimeException;
 
 /**
- * (c) 2010 Nicolas Gramlich
- * (c) 2011 Zynga Inc.
+ * (c) 2013 Nicolas Gramlich
  *
- * @author Nicolas Gramlich
- * @since 16:58:37 - 20.03.2011
+ * @author Nicolas Gramlich <ngramlich@zynga.com>
+ * @since 21:33:53 - 01.05.2013
  */
-public class WifiException extends AndEngineException {
+public class IllegalClassNameException extends AndEngineRuntimeException {
 	// ===========================================================
 	// Constants
 	// ===========================================================
 
-	private static final long serialVersionUID = -8647288255044498718L;
+	private static final long serialVersionUID = 5615299668631505188L;
 
 	// ===========================================================
 	// Fields
@@ -23,15 +23,19 @@ public class WifiException extends AndEngineException {
 	// Constructors
 	// ===========================================================
 
-	public WifiException() {
-
+	public IllegalClassNameException() {
+		super();
 	}
 
-	public WifiException(final String pMessage) {
+	public IllegalClassNameException(final String pMessage) {
 		super(pMessage);
 	}
 
-	public WifiException(final String pMessage, final Throwable pThrowable) {
+	public IllegalClassNameException(final Throwable pThrowable) {
+		super(pThrowable);
+	}
+
+	public IllegalClassNameException(final String pMessage, final Throwable pThrowable) {
 		super(pMessage, pThrowable);
 	}
 
