@@ -3,6 +3,7 @@ package org.andengine.engine;
 import org.andengine.BuildConfig;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.UpdateHandlerList;
+import org.andengine.engine.lockstep.ILockstep;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.util.debug.Debug;
 import org.andengine.util.time.TimeConstants;
@@ -30,7 +31,6 @@ import android.R.integer;
  * 
  */
 public class FixedStepMaxFPSEngine extends Engine {
-	// TODO implement SceneList to help update unattached scenes
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -43,8 +43,8 @@ public class FixedStepMaxFPSEngine extends Engine {
 	private long mSecondsElapsedAccumulator;
 	private final UpdateHandlerList mConstantUpdateHandlers = new UpdateHandlerList(
 			Engine.UPDATEHANDLERS_CAPACITY_DEFAULT);
+	private ILockstep mLockstep;
 
-	
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -75,22 +75,31 @@ public class FixedStepMaxFPSEngine extends Engine {
 	 * 
 	 */
 	public void pause() {
-		
-		if(this.mPaused){
+
+		if (this.mPaused) {
 			if (BuildConfig.DEBUG) {
-				Debug.d(this.getClass().getSimpleName() + ".Unpause" + " @(Thread: '" + Thread.currentThread().getName()
-						+ "')");
+				Debug.d(this.getClass().getSimpleName() + ".Unpause" + " @(Thread: '"
+						+ Thread.currentThread().getName() + "')");
 			}
 			this.mPaused = false;
-		}else{
+		} else {
 			if (BuildConfig.DEBUG) {
 				Debug.d(this.getClass().getSimpleName() + ".pause" + " @(Thread: '" + Thread.currentThread().getName()
 						+ "')");
 			}
-			this.mPaused = true;	
+			this.mPaused = true;
 		}
-		
+
 	}
+
+	public void setLockstep(final ILockstep pLockstep) {
+		this.mLockstep = pLockstep;
+	}
+
+	public ILockstep getLockstep() {
+		return this.mLockstep;
+	}
+
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
@@ -107,6 +116,7 @@ public class FixedStepMaxFPSEngine extends Engine {
 			this.onConstantUpdateUpdateHandlers(pSecondsElapsed * this.mTimeModifier);
 			this.mSecondsElapsedAccumulator -= stepLength;
 		}
+		this.updateLockstep(pNanosecondsElapsed);
 		super.onUpdate(pNanosecondsElapsed);
 	}
 
@@ -170,11 +180,16 @@ public class FixedStepMaxFPSEngine extends Engine {
 	public void clearConstantUpdateHandlers() {
 		this.mConstantUpdateHandlers.clear();
 	}
-	
-	public boolean isPaused(){
+
+	public boolean isPaused() {
 		return this.mPaused;
 	}
 
+	protected void updateLockstep(final float pSecondsElapsed){
+		if(this.mLockstep != null){
+			this.mLockstep.onUpdate(pSecondsElapsed);
+		}
+	}
 	// ===========================================================
 	// Methods
 	// ===========================================================
