@@ -74,6 +74,7 @@ public class GLState {
 
 	private final GLMatrixStack mModelViewGLMatrixStack = new GLMatrixStack();
 	private final GLMatrixStack mProjectionGLMatrixStack = new GLMatrixStack();
+	private final GLScissorStack mScissorStack = new GLScissorStack();
 
 	private final float[] mModelViewGLMatrix = new float[GLMatrixStack.GLMATRIX_SIZE];
 	private final float[] mProjectionGLMatrix = new float[GLMatrixStack.GLMATRIX_SIZE];
@@ -144,6 +145,7 @@ public class GLState {
 
 		this.mModelViewGLMatrixStack.reset();
 		this.mProjectionGLMatrixStack.reset();
+		this.mScissorStack.reset();
 
 		this.mCurrentArrayBufferID = -1;
 		this.mCurrentIndexBufferID = -1;
@@ -504,7 +506,7 @@ public class GLState {
 	}
 
 	/**
-	 * @see {@link GLState#forceBindTexture(GLES20, int)}
+	 * @see {@link #forceBindTexture(GLES20, int)}
 	 * @param GLES20
 	 * @param pHardwareTextureID
 	 */
@@ -532,7 +534,7 @@ public class GLState {
 	}
 
 	public void lineWidth(final float pLineWidth) {
-		if (this.mLineWidth  != pLineWidth) {
+		if (this.mLineWidth != pLineWidth) {
 			this.mLineWidth = pLineWidth;
 			GLES20.glLineWidth(pLineWidth);
 		}
@@ -630,6 +632,14 @@ public class GLState {
 		this.mProjectionGLMatrixStack.reset();
 	}
 
+	public void glPushScissor(final int pX, final int pY, final int pWidth, final int pHeight) {
+		this.mScissorStack.glPushScissor(pX, pY, pWidth, pHeight);
+	}
+
+	public void glPopScissor() {
+		this.mScissorStack.glPopScissor();
+	}
+
 	/**
 	 * <b>Note:</b> does not pre-multiply the alpha channel!</br>
 	 * Except that difference, same as: {@link GLUtils#texSubImage2D(int, int, int, int, Bitmap, int, int)}</br>
@@ -658,7 +668,7 @@ public class GLState {
 	/**
 	 * Tells the OpenGL driver to send all pending commands to the GPU immediately.
 	 *
-	 * @see {@link GLState#finish()},
+	 * @see {@link #finish()},
 	 * 		{@link RenderTexture#end(GLState, boolean, boolean)}.
 	 */
 	public void flush() {
@@ -670,7 +680,7 @@ public class GLState {
 	 * and then blocks until the effects of those commands have been completed on the GPU.
 	 * Since this is a costly method it should be only called when really needed.
 	 *
-	 * @see {@link GLState#flush()},
+	 * @see {@link #flush()},
 	 * 		{@link RenderTexture#end(GLState, boolean, boolean)}.
 	 */
 	public void finish() {

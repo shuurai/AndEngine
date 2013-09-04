@@ -1,19 +1,19 @@
-package org.andengine.util.experiment.exception;
+package org.andengine.util.preferences.exception;
 
-import org.andengine.util.exception.AndEngineException;
+import org.andengine.util.exception.AndEngineRuntimeException;
 
 /**
  * (c) 2013 Nicolas Gramlich
- * 
- * @author Nicolas Gramlich
- * @since 00:45:14 - 23.03.2013
+ *
+ * @author Nicolas Gramlich <ngramlich@zynga.com>
+ * @since 20:09:38 - 13.04.2013
  */
-public class ExperimentException extends AndEngineException {
+public class SecureSharedPreferencesException extends AndEngineRuntimeException {
 	// ===========================================================
 	// Constants
 	// ===========================================================
 
-	private static final long serialVersionUID = 8028018956559796977L;
+	private static final long serialVersionUID = 5683854473467471982L;
 
 	// ===========================================================
 	// Fields
@@ -23,19 +23,19 @@ public class ExperimentException extends AndEngineException {
 	// Constructors
 	// ===========================================================
 
-	public ExperimentException() {
-		super();
+	public SecureSharedPreferencesException() {
+
 	}
 
-	public ExperimentException(final String pMessage) {
+	public SecureSharedPreferencesException(final String pMessage) {
 		super(pMessage);
 	}
 
-	public ExperimentException(final Throwable pThrowable) {
+	public SecureSharedPreferencesException(final Throwable pThrowable) {
 		super(pThrowable);
 	}
 
-	public ExperimentException(final String pMessage, final Throwable pThrowable) {
+	public SecureSharedPreferencesException(final String pMessage, final Throwable pThrowable) {
 		super(pMessage, pThrowable);
 	}
 

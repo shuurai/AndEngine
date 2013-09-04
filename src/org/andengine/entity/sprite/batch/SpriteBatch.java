@@ -131,6 +131,10 @@ public class SpriteBatch extends Shape {
 	// Getter & Setter
 	// ===========================================================
 
+	public int getCapacity() {
+		return this.mCapacity;
+	}
+
 	public int getIndex() {
 		return this.mIndex;
 	}
@@ -466,19 +470,19 @@ public class SpriteBatch extends Shape {
 
 	private void assertCapacity(final int pIndex) {
 		if (pIndex >= this.mCapacity) {
-			throw new IllegalStateException("This supplied pIndex: '" + pIndex + "' is exceeding the capacity: '" + this.mCapacity + "' of this SpriteBatch!");
+			throw new IllegalStateException("This supplied pIndex: '" + pIndex + "' is exceeding the capacity: '" + this.mCapacity + "' of this " + this.getClass().getSimpleName() + "!");
 		}
 	}
 
 	private void assertCapacity() {
 		if (this.mIndex == this.mCapacity) {
-			throw new IllegalStateException("This SpriteBatch has already reached its capacity (" + this.mCapacity + ") !");
+			throw new IllegalStateException("This " + this.getClass().getSimpleName() + " has already reached its capacity (" + this.mCapacity + ") !");
 		}
 	}
 
 	protected void assertTexture(final ITextureRegion pTextureRegion) {
 		if (pTextureRegion.getTexture() != this.mTexture) {
-			throw new IllegalArgumentException("The supplied Texture does match the Texture of this SpriteBatch!");
+			throw new IllegalArgumentException("The supplied Texture does match the Texture of this " + this.getClass().getSimpleName() + "!");
 		}
 	}
 
@@ -664,7 +668,7 @@ public class SpriteBatch extends Shape {
 
 		pTransformation.transform(SpriteBatch.VERTICES_TMP);
 
-		this.addInner(pTextureRegion, SpriteBatch.VERTICES_TMP[0], SpriteBatch.VERTICES_TMP[1], SpriteBatch.VERTICES_TMP[2], SpriteBatch.VERTICES_TMP[3],  SpriteBatch.VERTICES_TMP[4], SpriteBatch.VERTICES_TMP[5], SpriteBatch.VERTICES_TMP[6], SpriteBatch.VERTICES_TMP[7], pRed, pGreen, pBlue, pAlpha);
+		this.addInner(pTextureRegion, SpriteBatch.VERTICES_TMP[0], SpriteBatch.VERTICES_TMP[1], SpriteBatch.VERTICES_TMP[2], SpriteBatch.VERTICES_TMP[3], SpriteBatch.VERTICES_TMP[4], SpriteBatch.VERTICES_TMP[5], SpriteBatch.VERTICES_TMP[6], SpriteBatch.VERTICES_TMP[7], pRed, pGreen, pBlue, pAlpha);
 	}
 
 	/**
@@ -689,7 +693,7 @@ public class SpriteBatch extends Shape {
 
 		pTransformation.transform(SpriteBatch.VERTICES_TMP);
 
-		this.mSpriteBatchVertexBufferObject.addWithPackedColor(pTextureRegion, SpriteBatch.VERTICES_TMP[0], SpriteBatch.VERTICES_TMP[1], SpriteBatch.VERTICES_TMP[2], SpriteBatch.VERTICES_TMP[3],  SpriteBatch.VERTICES_TMP[4], SpriteBatch.VERTICES_TMP[5], SpriteBatch.VERTICES_TMP[6], SpriteBatch.VERTICES_TMP[7], pColorABGRPackedInt);
+		this.mSpriteBatchVertexBufferObject.addWithPackedColor(pTextureRegion, SpriteBatch.VERTICES_TMP[0], SpriteBatch.VERTICES_TMP[1], SpriteBatch.VERTICES_TMP[2], SpriteBatch.VERTICES_TMP[3], SpriteBatch.VERTICES_TMP[4], SpriteBatch.VERTICES_TMP[5], SpriteBatch.VERTICES_TMP[6], SpriteBatch.VERTICES_TMP[7], pColorABGRPackedInt);
 	}
 
 	/**

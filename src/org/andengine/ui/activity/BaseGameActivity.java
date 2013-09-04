@@ -101,7 +101,7 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
 		if (this.mGameCreated) {
 			this.onReloadResources();
 
-			if (this.mGamePaused && this.mGameCreated) {
+			if (this.mGamePaused && this.mGameCreated && !this.isFinishing()) {
 				this.onResumeGame();
 			}
 		} else {
@@ -117,7 +117,7 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
 	@Override
 	public synchronized void onSurfaceChanged(final GLState pGLState, final int pWidth, final int pHeight) {
 		if (BuildConfig.DEBUG) {
-			Debug.d(this.getClass().getSimpleName() + ".onSurfaceChanged(Width=" + pWidth + ",  Height=" + pHeight + ")" + " @(Thread: '" + Thread.currentThread().getName() + "')");
+			Debug.d(this.getClass().getSimpleName() + ".onSurfaceChanged(Width=" + pWidth + ", Height=" + pHeight + ")" + " @(Thread: '" + Thread.currentThread().getName() + "')");
 		}
 	}
 
@@ -230,7 +230,7 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
 	public synchronized void onWindowFocusChanged(final boolean pHasWindowFocus) {
 		super.onWindowFocusChanged(pHasWindowFocus);
 
-		if (pHasWindowFocus && this.mGamePaused && this.mGameCreated) {
+		if (pHasWindowFocus && this.mGamePaused && this.mGameCreated && !this.isFinishing()) {
 			this.onResumeGame();
 		}
 	}
@@ -372,7 +372,9 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
 		BaseGameActivity.this.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				BaseGameActivity.this.onResumeGame();
+				if (!BaseGameActivity.this.isFinishing()) {
+					BaseGameActivity.this.onResumeGame();
+				}
 			}
 		});
 	}

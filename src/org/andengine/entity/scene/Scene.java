@@ -180,18 +180,11 @@ public class Scene extends Entity {
 	 * enabled: TouchAreas get bound to a PointerID (finger) when returning true
 	 * in {@link IShape#onAreaTouched(TouchEvent, float, float)} or
 	 * {@link IOnAreaTouchListener#onAreaTouched(TouchEvent, ITouchArea, float, float)}
-<<<<<<< HEAD
-	 * with {@link TouchEvent#ACTION_DOWN}, they will receive all subsequent {@link TouchEvent}s
-	 * that are made with the same PointerID (finger)
-	 * <b>even if the {@link TouchEvent} is outside of the actual {@link ITouchArea}</b>!
-	 *
-=======
 	 * with {@link TouchEvent#ACTION_DOWN}, they will receive all subsequent
 	 * {@link TouchEvent}s that are made with the same PointerID (finger)
 	 * <b>even if the {@link TouchEvent} is outside of the actual
 	 * {@link ITouchArea}</b>!
 	 * 
->>>>>>> Can now block touch areas from being touch, useful for dragging bounding boxes.
 	 * @param pTouchAreaBindingOnActionDownEnabled
 	 */
 	public void setTouchAreaBindingOnActionDownEnabled(final boolean pTouchAreaBindingOnActionDownEnabled) {
@@ -206,18 +199,11 @@ public class Scene extends Entity {
 	 * enabled: TouchAreas get bound to a PointerID (finger) when returning true
 	 * in {@link IShape#onAreaTouched(TouchEvent, float, float)} or
 	 * {@link IOnAreaTouchListener#onAreaTouched(TouchEvent, ITouchArea, float, float)}
-<<<<<<< HEAD
-	 * with {@link TouchEvent#ACTION_MOVE}, they will receive all subsequent {@link TouchEvent}s
-	 * that are made with the same PointerID (finger)
-	 * <b>even if the {@link TouchEvent} is outside of the actual {@link ITouchArea}</b>!
-	 *
-=======
 	 * with {@link TouchEvent#ACTION_MOVE}, they will receive all subsequent
 	 * {@link TouchEvent}s that are made with the same PointerID (finger)
 	 * <b>even if the {@link TouchEvent} is outside of the actual
 	 * {@link ITouchArea}</b>!
 	 * 
->>>>>>> Can now block touch areas from being touch, useful for dragging bounding boxes.
 	 * @param pTouchAreaBindingOnActionMoveEnabled
 	 */
 	public void setTouchAreaBindingOnActionMoveEnabled(final boolean pTouchAreaBindingOnActionMoveEnabled) {
@@ -416,7 +402,7 @@ public class Scene extends Entity {
 			final Boolean handled = this.mOnSceneTouchListener.onSceneTouchEvent(this, pSceneTouchEvent);
 			if (handled != null && handled) {
 				/* If binding of ITouchAreas is enabled and this is an ACTION_DOWN event,
-				 *  bind the active OnSceneTouchListener to the PointerID. */
+				 * bind the active OnSceneTouchListener to the PointerID. */
 				if (this.mOnSceneTouchListenerBindingOnActionDownEnabled && isActionDown) {
 					this.mOnSceneTouchListenerBindings.put(pSceneTouchEvent.getPointerID(), this.mOnSceneTouchListener);
 				}

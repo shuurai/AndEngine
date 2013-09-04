@@ -9,12 +9,11 @@ import java.util.Arrays;
 import java.util.Enumeration;
 
 import org.andengine.util.adt.array.ArrayUtils;
-import org.andengine.util.debug.Debug;
 import org.andengine.util.exception.AndEngineException;
 import org.andengine.util.exception.MethodNotFoundException;
-import org.andengine.util.exception.WifiException;
 import org.andengine.util.system.SystemUtils;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiConfiguration;
@@ -78,12 +77,26 @@ public final class WifiUtils {
 		return WifiUtils.getWifiManager(pContext).getConnectionInfo().getSSID();
 	}
 
+	public static String getWifiSSID(final Context pContext, final boolean pStripQuotes) {
+		final String wifiSSID = WifiUtils.getWifiSSID(pContext);
+
+		if (pStripQuotes) {
+			return WifiUtils.stripQuotes(wifiSSID);
+		} else {
+			return wifiSSID;
+		}
+	}
+
 	public static byte[] getWifiIPv4AddressRaw(final Context pContext) {
 		return IPUtils.ipv4AddressToIPAddress(WifiUtils.getWifiManager(pContext).getConnectionInfo().getIpAddress());
 	}
 
-	public static String getWifiIPv4Address(final Context pContext) throws UnknownHostException {
-		return IPUtils.ipAddressToString(WifiUtils.getWifiIPv4AddressRaw(pContext));
+	public static String getWifiIPv4Address(final Context pContext) throws WifiUtilsException {
+		try {
+			return IPUtils.ipAddressToString(WifiUtils.getWifiIPv4AddressRaw(pContext));
+		} catch (final UnknownHostException e) {
+			throw new WifiUtilsException("Unexpected error!", e);
+		}
 	}
 
 	public static boolean isWifiIPAddressValid(final Context pContext) {
@@ -99,10 +112,6 @@ public final class WifiUtils {
 			return false;
 		} else {
 			final WifiManager wifiManager = WifiUtils.getWifiManager(pContext);
-			for (Method m : wifiManager.getClass().getMethods()) {
-				Debug.d("WifiManager." + m.getName());
-			}
-
 			try {
 				final Method WifiManager_isWifiApEnabled = wifiManager.getClass().getMethod("isWifiApEnabled");
 				return WifiManager_isWifiApEnabled != null;
@@ -160,6 +169,35 @@ public final class WifiUtils {
 		}
 	}
 
+	public static WifiConfiguration getWifiHotspotConfiguration(final Context pContext) throws WifiUtilsException {
+		final WifiManager wifiManager = WifiUtils.getWifiManager(pContext);
+
+		try {
+			final Method WifiManager_getWifiApState = wifiManager.getClass().getMethod("getWifiApConfiguration");
+			if (WifiManager_getWifiApState == null) {
+				throw new WifiUtilsException(new MethodNotFoundException(WifiManager.class.getSimpleName() + ".getWifiApConfiguration()"));
+			} else {
+				return (WifiConfiguration)WifiManager_getWifiApState.invoke(wifiManager);
+			}
+		} catch (final Throwable t) {
+			throw new WifiUtilsException(t);
+		}
+	}
+
+	public static String getWifiHotspotSSID(final Context pContext) throws WifiUtilsException {
+		return WifiUtils.getWifiHotspotConfiguration(pContext).SSID;
+	}
+
+	public static String getWifiHotspotSSID(final Context pContext, final boolean pStripQuotes) throws WifiUtilsException {
+		final String wifiHotspotSSID = WifiUtils.getWifiHotspotSSID(pContext);
+
+		if (pStripQuotes) {
+			return WifiUtils.stripQuotes(wifiHotspotSSID);
+		} else {
+			return wifiHotspotSSID;
+		}
+	}
+
 	public static WifiHotspotState getWifiHotspotState(final Context pContext) throws WifiUtilsException {
 		final WifiManager wifiManager = WifiUtils.getWifiManager(pContext);
 
@@ -177,68 +215,108 @@ public final class WifiUtils {
 		}
 	}
 
-	public static boolean isWifiHotspotRunning() throws WifiException {
-		try {
-			final Enumeration<NetworkInterface> networkInterfaceEnumeration = NetworkInterface.getNetworkInterfaces();
-			while (networkInterfaceEnumeration.hasMoreElements()) {
-				final NetworkInterface networkInterface = networkInterfaceEnumeration.nextElement();
-				final String networkInterfaceName = networkInterface.getName();
-
-				if (ArrayUtils.contains(WifiUtils.HOTSPOT_NETWORKINTERFACE_NAMES, networkInterfaceName)) {
-					return true;
-				}
-			}
-			return false;
-		} catch (final SocketException e) {
-			throw new WifiException("Unexpected error!", e);
-		}
+	public static boolean isWifiHotspotRunning(final Context pContext) throws WifiUtilsException {
+		return WifiUtils.getWifiHotspotState(pContext) == WifiHotspotState.ENABLED;
 	}
 
 	/**
 	 * @return prefers to return an IPv4 address if found, otherwise an IPv6 address.
-	 * @throws WifiException
+	 * @throws WifiUtilsException
 	 */
-	public static byte[] getWifiHotspotIPAddressRaw() throws WifiException {
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
+	public static byte[] getWifiHotspotIPAddressRaw() throws WifiUtilsException {
 		try {
+			byte[] ipv6Address = null;
+
 			final Enumeration<NetworkInterface> networkInterfaceEnumeration = NetworkInterface.getNetworkInterfaces();
 			while (networkInterfaceEnumeration.hasMoreElements()) {
 				final NetworkInterface networkInterface = networkInterfaceEnumeration.nextElement();
-				final String networkInterfaceName = networkInterface.getName();
-
-				if (ArrayUtils.contains(WifiUtils.HOTSPOT_NETWORKINTERFACE_NAMES, networkInterfaceName)) {
-					byte[] ipv6Address = null;
-					final Enumeration<InetAddress> inetAddressEnumeration = networkInterface.getInetAddresses();
-					while (inetAddressEnumeration.hasMoreElements()) {
-						final byte[] ipAddress = inetAddressEnumeration.nextElement().getAddress();
-						if (ipAddress.length == 4) { // TODO Constant!
-							return ipAddress;
-						} else {
-							ipv6Address = ipAddress;
+				if (SystemUtils.isAndroidVersionOrLower(Build.VERSION_CODES.FROYO) || !networkInterface.isLoopback()) {
+					final String networkInterfaceName = networkInterface.getName();
+	
+					if (ArrayUtils.contains(WifiUtils.HOTSPOT_NETWORKINTERFACE_NAMES, networkInterfaceName)) {
+						final Enumeration<InetAddress> inetAddressEnumeration = networkInterface.getInetAddresses();
+						while (inetAddressEnumeration.hasMoreElements()) {
+							final InetAddress inetAddress = inetAddressEnumeration.nextElement();
+							if (!inetAddress.isLoopbackAddress()) {
+								final byte[] ipAddress = inetAddress.getAddress();
+								if (ipAddress.length == IPUtils.IPV4_LENGTH) {
+									return ipAddress;
+								} else {
+									ipv6Address = ipAddress;
+								}
+							}
 						}
-					}
-					if (ipv6Address != null) {
-						return ipv6Address;
-					} else {
-						throw new WifiException("No IP bound to '" + Arrays.toString(WifiUtils.HOTSPOT_NETWORKINTERFACE_NAMES) + "'!");
 					}
 				}
 			}
-			throw new WifiException("No NetworInterface '" + Arrays.toString(WifiUtils.HOTSPOT_NETWORKINTERFACE_NAMES) + "' found!");
+
+			if (ipv6Address != null) {
+				return ipv6Address;
+			} else {
+				throw new WifiUtilsException("No IP bound to '" + Arrays.toString(WifiUtils.HOTSPOT_NETWORKINTERFACE_NAMES) + "'!");
+			}
 		} catch (final SocketException e) {
-			throw new WifiException("Unexpected error!", e);
+			throw new WifiUtilsException("Unexpected error!", e);
 		}
 	}
 
-	public static String getWifiHotspotIPAddress() throws WifiException {
+	public static String getWifiHotspotIPAddress() throws WifiUtilsException {
 		try {
 			return IPUtils.ipAddressToString(WifiUtils.getWifiHotspotIPAddressRaw());
 		} catch (final UnknownHostException e) {
-			throw new WifiException("Unexpected error!", e);
+			throw new WifiUtilsException("Unexpected error!", e);
 		}
 	}
 
-	public static boolean isWifiHotspotIPAddressValid() throws WifiException { // TODO!
+	public static boolean isWifiHotspotIPAddressValid() throws WifiUtilsException { // TODO!
 		return !WifiUtils.IP_DEFAULT.equals(WifiUtils.getWifiHotspotIPAddress());
+	}
+
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
+	public static byte[] getEmulatorIPAddressRaw() throws WifiUtilsException {
+		try {
+			byte[] ipv6Address = null;
+
+			final Enumeration<NetworkInterface> networkInterfaceEnumeration = NetworkInterface.getNetworkInterfaces();
+			while (networkInterfaceEnumeration.hasMoreElements()) {
+				final NetworkInterface networkInterface = networkInterfaceEnumeration.nextElement();
+				if (SystemUtils.isAndroidVersionOrLower(Build.VERSION_CODES.FROYO) || !networkInterface.isLoopback()) {
+					final Enumeration<InetAddress> inetAddressEnumeration = networkInterface.getInetAddresses();
+					while (inetAddressEnumeration.hasMoreElements()) {
+						final InetAddress inetAddress = inetAddressEnumeration.nextElement();
+						if (!inetAddress.isLoopbackAddress()) {
+							final byte[] ipAddress = inetAddress.getAddress();
+							if (ipAddress.length == IPUtils.IPV4_LENGTH) {
+								return ipAddress;
+							} else {
+								ipv6Address = ipAddress;
+							}
+						}
+					}
+				}
+			}
+
+			if (ipv6Address != null) {
+				return ipv6Address;
+			} else {
+				throw new WifiUtilsException("No IP found that is not bound to localhost!");
+			}
+		} catch (final SocketException e) {
+			throw new WifiUtilsException("Unexpected error!", e);
+		}
+	}
+
+	public static String getEmulatorIPAddress() throws WifiUtilsException {
+		try {
+			return IPUtils.ipAddressToString(WifiUtils.getEmulatorIPAddressRaw());
+		} catch (final UnknownHostException e) {
+			throw new WifiUtilsException("Unexpected error!", e);
+		}
+	}
+
+	public static boolean getEmulatorIPAddressValid() throws WifiUtilsException { // TODO!
+		return !WifiUtils.IP_DEFAULT.equals(WifiUtils.getEmulatorIPAddress());
 	}
 
 
@@ -284,25 +362,41 @@ public final class WifiUtils {
 		}
 	}
 
-
-	public static byte[] getBroadcastIPAddressRaw(final Context pContext) throws WifiException {
+	public static byte[] getBroadcastIPAddressRaw(final Context pContext) throws WifiUtilsException {
 		final WifiManager wifiManager = WifiUtils.getWifiManager(pContext);
 		final DhcpInfo dhcp = wifiManager.getDhcpInfo();
 		// TODO handle null somehow...
 
 		final int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
-		final byte[] broadcastIP = new byte[4];
-		for (int k = 0; k < 4; k++) {
+		final byte[] broadcastIP = new byte[IPUtils.IPV4_LENGTH];
+		for (int k = 0; k < IPUtils.IPV4_LENGTH; k++) {
 			broadcastIP[k] = (byte) ((broadcast >> (k * 8)) & 0xFF);
 		}
 		return broadcastIP;
+	}
+
+	private static String stripQuotes(final String pString) {
+		if (pString == null) {
+			return pString;
+		} else {
+			final int stringLength = pString.length();
+			if (stringLength >= 2) {
+				if (pString.startsWith("\"") && pString.endsWith("\"") ) {
+					return pString.substring(1, stringLength - 1);
+				} else {
+					return pString;
+				}
+			} else {
+				return pString;
+			}
+		}
 	}
 
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
 
-	public enum WifiHotspotState {
+	public static enum WifiHotspotState {
 		// ===========================================================
 		// Elements
 		// ===========================================================
@@ -325,21 +419,21 @@ public final class WifiUtils {
 		// Constructors
 		// ===========================================================
 
-		public static WifiHotspotState fromWifiApState(final int pWifiApState) throws WifiException {
+		public static WifiHotspotState fromWifiApState(final int pWifiApState) throws WifiUtilsException {
 			if (SystemUtils.isAndroidVersionOrHigher(Build.VERSION_CODES.ICE_CREAM_SANDWICH)) {
 				switch (pWifiApState) {
-					case 0:
+					case 10:
 						return DISABLING;
-					case 1:
+					case 11:
 						return DISABLED;
-					case 2:
+					case 12:
 						return ENABLING;
-					case 3:
+					case 13:
 						return ENABLED;
-					case 4:
+					case 14:
 						return FAILED;
 					default:
-						throw new WifiException("TODO...");
+						throw new WifiUtilsException("TODO...");
 				}
 			} else {
 				switch (pWifiApState) {
@@ -354,7 +448,11 @@ public final class WifiUtils {
 					case 4:
 						return FAILED;
 					default:
-						throw new WifiException("TODO...");
+						if (pWifiApState >= 10) {
+							return WifiHotspotState.fromWifiApState(pWifiApState - 10);
+						} else {
+							throw new WifiUtilsException("TODO...");
+						}
 				}
 			}
 		}
@@ -384,7 +482,7 @@ public final class WifiUtils {
 		private static final long serialVersionUID = 1108697754015225179L;
 
 		// ===========================================================
-		// COnstructors
+		// Constructors
 		// ===========================================================
 
 		public WifiUtilsException() {
@@ -393,6 +491,14 @@ public final class WifiUtils {
 
 		public WifiUtilsException(final Throwable pThrowable) {
 			super(pThrowable);
+		}
+
+		private WifiUtilsException(final String pMessage) {
+			super(pMessage);
+		}
+
+		private WifiUtilsException(final String pMessage, final Throwable pThrowable) {
+			super(pMessage, pThrowable);
 		}
 	}
 }
