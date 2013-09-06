@@ -6,6 +6,16 @@ The isometric depth sorting has been taken from AS3IsoLib [`as3isolib`][URI_AS3I
 
 If you want to understand how to use isometric support, [`visit here`][URI_ISOMETRICWORLDEXAMPLE]
 
+##Notes on building with ant##
+From now on I'll be building my projects using ANT as it allows me to automate some processes such as version control and version increment.
+
+To build with ant you need the NDK installed, you can then run 
+
+>ant release -Dndk=false
+
+or
+
+>ant release -Dndk=true
 
 ## Building
 
