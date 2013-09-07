@@ -70,6 +70,16 @@
     <target name="-pre-build">
         <antcall target="build-native"/>
     </target>
+	
+	<!-- This is so when we build with ant in/with eclipse,
+	we can still use the project as a library. 
+	Using eclipse to build (not using ant) the library results in andengine.jar
+	but when using ant Android names the jar classes.jar, this will break the
+	projects in eclipse. 
+	-->
+	<target name="-post-build">
+		<copy file="bin/classes.jar" tofile="bin/andengine.jar"/>
+	</target>
 
     <!-- version-tag: custom -->
     <import file="${sdk.dir}/tools/ant/build.xml"/>

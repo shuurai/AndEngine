@@ -17,6 +17,12 @@ or
 
 >ant release -Dndk=true
 
+The eclipse project is setup to build using ant first. To change this do the following
+
+> Right click project in workspace > properties > Builders > Untick or remove ant build
+
+
+
 ## Building
 
 ### Eclipse
