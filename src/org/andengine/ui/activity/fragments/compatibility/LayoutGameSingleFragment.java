@@ -5,6 +5,12 @@ package org.andengine.ui.activity.fragments.compatibility;
 
 import org.andengine.opengl.view.RenderSurfaceView;
 import org.andengine.ui.activity.BaseGameActivity;
+import org.andengine.ui.activity.LayoutGameActivity;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * <p>Fragment implementation of {@link LayoutGameActivity}</p>
@@ -20,9 +26,8 @@ import org.andengine.ui.activity.BaseGameActivity;
  * @since 09:20:00 - 05.08.2010
  * @author Paul Robinson
  * @author gelakinetic
- *
  */
-public abstract class LayoutGameFragment extends BaseGameFragment {
+public abstract class LayoutGameSingleFragment extends BaseGameSingleFragment {
 	
 	/**
 	 * Paul Robinson implemented this again from GLES1, I think most of this 
@@ -53,13 +58,15 @@ public abstract class LayoutGameFragment extends BaseGameFragment {
 	protected abstract int getLayoutID();
 	protected abstract int getRenderSurfaceViewID();
 
-	@Override
-	protected void onSetContentView() {
-		super.setContentView(this.getLayoutID());
-		this.mRenderSurfaceView = (RenderSurfaceView) this.findViewById(this.getRenderSurfaceViewID());
+	 @Override
 
-		this.mRenderSurfaceView.setRenderer(this.mEngine, this);
-	}
+     public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                     Bundle savedInstanceState) {
+             View v = inflater.inflate(this.getLayoutID(), container, false);
+             this.mRenderSurfaceView = (RenderSurfaceView) v.findViewById(this.getRenderSurfaceViewID());
+             this.mRenderSurfaceView.setRenderer(this.mEngine, this);
+             return v;
+     }
 
 
 	// ===========================================================
