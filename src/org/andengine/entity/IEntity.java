@@ -165,6 +165,9 @@ public interface IEntity extends IDrawHandler, IUpdateHandler, IDisposable, ITou
 	public void setAnchorCenterY(final float pAnchorCenterY);
 	public void setAnchorCenter(final float pAnchorCenterX, final float pAnchorCenterY);
 
+	public void setMask(Rect pR);
+	public Rect getMask();
+
 	public float getRed();
 	public float getGreen();
 	public float getBlue();

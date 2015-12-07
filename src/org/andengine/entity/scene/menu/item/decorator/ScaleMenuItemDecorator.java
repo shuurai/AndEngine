@@ -1,5 +1,6 @@
 package org.andengine.entity.scene.menu.item.decorator;
 
+import org.andengine.entity.Rect;
 import org.andengine.entity.scene.menu.item.IMenuItem;
 
 /**

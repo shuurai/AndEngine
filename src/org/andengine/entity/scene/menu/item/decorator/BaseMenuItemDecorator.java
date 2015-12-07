@@ -6,11 +6,7 @@ import java.util.List;
 import org.andengine.engine.ITimeModifiedUpdater;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IUpdateHandler;
-import org.andengine.entity.IEntity;
-import org.andengine.entity.IEntityComparator;
-import org.andengine.entity.IEntityMatcher;
-import org.andengine.entity.IEntityParameterCallable;
-import org.andengine.entity.IIsometricEntity3DSpaceRecalculation;
+import org.andengine.entity.*;
 import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierMatcher;
 import org.andengine.entity.scene.menu.item.IMenuItem;
@@ -89,6 +85,17 @@ public abstract class BaseMenuItemDecorator implements IMenuItem {
 	public final void onUnselected() {
 		this.mMenuItem.onUnselected();
 		this.onMenuItemUnselected(this.mMenuItem);
+	}
+
+	@Override
+	public void setMask(Rect pR) {
+		// does nothing
+		this.mMenuItem.setMask(pR);
+	}
+
+	@Override
+	public Rect getMask() {
+		return this.mMenuItem.getMask();
 	}
 
 	@Override
