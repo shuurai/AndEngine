@@ -23,14 +23,10 @@ import org.andengine.util.call.ParameterCallable;
 import org.andengine.util.math.MathUtils;
 
 /**
-<<<<<<< HEAD
  * (c) 2010 Nicolas Gramlich
  * (c) 2011 Zynga Inc.
  *
-=======
- * (c) 2010 Nicolas Gramlich (c) 2011 Zynga Inc.
- * 
->>>>>>> Now using a pool for Paths and Nodes. ZModifer now using epsilon when deteching Z change.
+ * Now using a pool for Paths and Nodes. ZModifer now using epsilon when deteching Z change.
  * @author Nicolas Gramlich
  * @since 12:00:48 - 08.03.2010
  */
@@ -1890,8 +1886,12 @@ public class Entity implements IEntity {
 				this.postDraw(pGLState, pCamera);
 
 				{ /* Draw children in front of this Entity. */
-					for (; i < childCount; i++) {
-						children.get(i).onDraw(pGLState, pCamera);
+					// fix sometimes child is removed so it needs to be checked, might result it to be slower
+					final int newChildCount = children.size();
+					if(i < newChildCount) {
+						for (; i < newChildCount; i++) {
+							children.get(i).onDraw(pGLState, pCamera);
+						}
 					}
 				}
 			}
