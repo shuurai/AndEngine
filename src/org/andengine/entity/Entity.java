@@ -1887,11 +1887,14 @@ public class Entity implements IEntity {
 
 				{ /* Draw children in front of this Entity. */
 					// fix sometimes child is removed so it needs to be checked, might result it to be slower
-					final int newChildCount = children.size();
-					if(i < newChildCount) {
-						for (; i < newChildCount; i++) {
-							children.get(i).onDraw(pGLState, pCamera);
+					try {
+						if (i < childCount) {
+							for (; i < childCount; i++) {
+								children.get(i).onDraw(pGLState, pCamera);
+							}
 						}
+					} catch(Exception e) {
+						e.printStackTrace();
 					}
 				}
 			}
@@ -1920,22 +1923,27 @@ public class Entity implements IEntity {
 				timeModifier = 1;
 			}
 
-			for (int i = 0; i < entityCount; i++) {
-				if (this.isRegisteredForTimeModifier()) {
-					// This entity has a time registered update, so update
-					// children with same update seconds.
-					entities.get(i).onUpdate(pSecondsElapsed);
-				} else {
-					// This entity is not registered for a time modified update.
-					if (entities.get(i).isRegisteredForTimeModifier()) {
-						// Child is registered for a time modified update.
-						entities.get(i).onUpdate(pSecondsElapsed * timeModifier);
-					} else {
-						// Isn't so don't update with a time modified update
+			try {
+				for (int i = 0; i < entityCount; i++) {
+					if (this.isRegisteredForTimeModifier()) {
+						// This entity has a time registered update, so update
+						// children with same update seconds.
 						entities.get(i).onUpdate(pSecondsElapsed);
+					} else {
+						// This entity is not registered for a time modified update.
+						if (entities.get(i).isRegisteredForTimeModifier()) {
+							// Child is registered for a time modified update.
+							entities.get(i).onUpdate(pSecondsElapsed * timeModifier);
+						} else {
+							// Isn't so don't update with a time modified update
+							entities.get(i).onUpdate(pSecondsElapsed);
+						}
 					}
+					// entities.get(i).onUpdate(pSecondsElapsed);
 				}
-				// entities.get(i).onUpdate(pSecondsElapsed);
+			} catch(Exception e) {
+				// entity has been deleted, need to handle
+				e.printStackTrace();
 			}
 		}
 	}
