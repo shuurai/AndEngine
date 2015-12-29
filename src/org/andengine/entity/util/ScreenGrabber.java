@@ -91,16 +91,34 @@ public class ScreenGrabber extends Entity {
 	}
 
 	private static Bitmap grab(final int pGrabX, final int pGrabY, final int pGrabWidth, final int pGrabHeight) {
+		/*
 		final int[] pixelsRGBA_8888 = new int[pGrabWidth * pGrabHeight];
 		final IntBuffer pixelsRGBA_8888_Buffer = IntBuffer.wrap(pixelsRGBA_8888);
 
 		// TODO Check availability of OpenGL and GLES20.GL_RGBA combinations that require less conversion operations.
 		GLES20.glReadPixels(pGrabX, pGrabY, pGrabWidth, pGrabHeight, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, pixelsRGBA_8888_Buffer);
 
-		/* Convert from RGBA_8888 (Which is actually ABGR as the whole buffer seems to be inverted) --> ARGB_8888. */
 		final int[] pixelsARGB_8888 = GLHelper.convertRGBA_8888toARGB_8888(pixelsRGBA_8888);
 
-		return Bitmap.createBitmap(pixelsARGB_8888, pGrabWidth, pGrabHeight, Config.ARGB_8888);
+		return Bitmap.createBitmap(pixelsARGB_8888, pGrabWidth, pGrabHeight, Config.ARGB_8888);*/
+		final int[] pixelsRGBA_8888 = new int[pGrabWidth * pGrabHeight];
+		final IntBuffer pixelsRGBA_8888_Buffer = IntBuffer.wrap(pixelsRGBA_8888);
+
+		// TODO Check availability of OpenGL and GLES20.GL_RGBA combinations that require less conversion operations.
+		GLES20.glReadPixels(pGrabX, pGrabY, pGrabWidth, pGrabHeight, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, pixelsRGBA_8888_Buffer);
+
+    	/* Convert from RGBA_8888 (Which is actually ABGR as the whole buffer seems to be inverted) --> ARGB_8888. */
+		final int[] pixelsARGB_8888 = GLHelper.convertRGBA_8888toARGB_8888(pixelsRGBA_8888);
+
+		final int[] pixels = new int[pGrabWidth * pGrabHeight];
+
+		for (int y = 0; y < pGrabHeight; y++) {
+			for (int x = 0; x < pGrabWidth; x++) {
+				pixels[x + ((pGrabHeight - y - 1) * pGrabWidth)] = pixelsARGB_8888[x + ((pGrabY + y) * pGrabWidth)];
+			}
+		}
+
+		return Bitmap.createBitmap(pixels, pGrabWidth, pGrabHeight, Config.ARGB_8888);
 	}
 
 	// ===========================================================
