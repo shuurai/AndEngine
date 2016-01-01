@@ -114,7 +114,8 @@ public class ScreenGrabber extends Entity {
 
 		for (int y = 0; y < pGrabHeight; y++) {
 			for (int x = 0; x < pGrabWidth; x++) {
-				pixels[x + ((pGrabHeight - y - 1) * pGrabWidth)] = pixelsARGB_8888[x + ((pGrabY + y) * pGrabWidth)];
+				pixels[x + (pGrabHeight - y - 1) * pGrabWidth] = pixelsARGB_8888[x + y * pGrabWidth];
+				// pixels[x + ((pGrabHeight - y - 1) * pGrabWidth)] = pixelsARGB_8888[x + ((pGrabY + y) * pGrabWidth)];
 			}
 		}
 
